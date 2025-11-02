@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using RestaurantReservation.Db.Models;
 
 namespace RestaurantReservation.Db;
@@ -18,7 +19,10 @@ public class RestaurantReservationDbContext : DbContext
     {
         optionsBuilder.UseSqlServer(
             "Data Source = (localdb)\\MSSQLLocalDB; Initial Catalog = RestaurantReservationCore"
-        );
+        ).LogTo(Console.WriteLine,
+            new[] { DbLoggerCategory.Database.Command.Name },
+            LogLevel.Information)
+        .EnableSensitiveDataLogging();
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
