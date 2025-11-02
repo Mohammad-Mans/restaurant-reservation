@@ -18,16 +18,19 @@ public class RestaurantReservationDbContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseSqlServer(
-            "Data Source = (localdb)\\MSSQLLocalDB; Initial Catalog = RestaurantReservationCore"
-        ).LogTo(Console.WriteLine,
-            new[] { DbLoggerCategory.Database.Command.Name },
-            LogLevel.Information)
-        .EnableSensitiveDataLogging();
+                "Data Source = (localdb)\\MSSQLLocalDB; Initial Catalog = RestaurantReservationCore"
+            ).LogTo(Console.WriteLine,
+                new[] { DbLoggerCategory.Database.Command.Name },
+                LogLevel.Information)
+            .EnableSensitiveDataLogging();
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<MenuItem>()
+            .HasKey(m => m.ItemId);
 
         modelBuilder.Entity<Order>()
             .HasOne(o => o.Reservation)
