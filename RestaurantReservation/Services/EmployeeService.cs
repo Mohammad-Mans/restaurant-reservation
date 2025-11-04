@@ -5,7 +5,7 @@ namespace RestaurantReservation.Services;
 
 public class EmployeeService(IEmployeeRepository repository)
 {
-    public Employee CreateEmployee(int restaurantId, string firstName, string lastName, string? position = null)
+    public Employee CreateEmployee(int restaurantId, string firstName, string lastName, string position)
     {
         var employee = new Employee
         {
