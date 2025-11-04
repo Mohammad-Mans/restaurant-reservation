@@ -46,4 +46,9 @@ public class ReservationRepository(RestaurantReservationDbContext context) : IRe
         context.SaveChanges();
         return true;
     }
+
+    public List<Reservation> GetByCustomerId(int customerId)
+    {
+        return context.Reservations.Where(r => r.CustomerId == customerId).ToList();
+    }
 }

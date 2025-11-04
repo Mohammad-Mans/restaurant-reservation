@@ -38,4 +38,9 @@ public class ReservationService(IReservationRepository repository)
     {
         return repository.Delete(id);
     }
+
+    public List<Reservation> GetReservationsByCustomer(int customerId)
+    {
+        return repository.GetByCustomerId(customerId);
+    }
 }

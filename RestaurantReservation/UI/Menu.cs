@@ -30,6 +30,9 @@ public class Menu(
                     ListAllManagers();
                     break;
                 case "3":
+                    GetReservationsByCustomer();
+                    break;
+                case "4":
                     exit = true;
                     Console.WriteLine("\nThank you for using Restaurant Reservation System. Goodbye!");
                     break;
@@ -47,7 +50,8 @@ public class Menu(
         Console.WriteLine("========================================");
         Console.WriteLine("  1. Perform CRUD Operations            ");
         Console.WriteLine("  2. List All Managers                  ");
-        Console.WriteLine("  3. Exit                               ");
+        Console.WriteLine("  3. Get Reservations by Customer      ");
+        Console.WriteLine("  4. Exit                               ");
         Console.WriteLine("========================================");
         Console.Write("\nSelect an option: ");
     }
@@ -116,6 +120,48 @@ public class Menu(
             {
                 Console.WriteLine(
                     $"{manager.EmployeeId,-5} {manager.FirstName,-15} {manager.LastName,-15} {manager.Position,-15} {manager.RestaurantId,-15}");
+            }
+        }
+
+        Console.WriteLine("\nPress any key to return to main menu...");
+        Console.ReadKey();
+        Console.WriteLine();
+    }
+
+    private void GetReservationsByCustomer()
+    {
+        Console.WriteLine("\n=== Get Reservations by Customer ===\n");
+        Console.Write("Enter Customer ID: ");
+
+        if (!int.TryParse(Console.ReadLine(), out var customerId))
+        {
+            Console.WriteLine("\nInvalid Customer ID. Please enter a valid number.\n");
+            Console.WriteLine("Press any key to return to main menu...");
+            Console.ReadKey();
+            Console.WriteLine();
+            return;
+        }
+
+        var reservations = reservationService.GetReservationsByCustomer(customerId);
+
+        Console.WriteLine($"\n=== Reservations for Customer ID {customerId} ===\n");
+
+        if (reservations.Count == 0)
+        {
+            Console.WriteLine("No reservations found for this customer.");
+        }
+        else
+        {
+            Console.WriteLine($"Found {reservations.Count} reservation(s):\n");
+            Console.WriteLine(
+                $"{"Reservation ID",-15} {"Restaurant ID",-15} {"Table ID",-12} {"Reservation Date",-20} {"Party Size",-12}");
+            Console.WriteLine(new string('-', 75));
+
+            foreach (var reservation in reservations)
+            {
+                var formattedDate = reservation.ReservationDate.ToString("yyyy-MM-dd HH:mm:ss");
+                Console.WriteLine(
+                    $"{reservation.ReservationId,-15} {reservation.RestaurantId,-15} {reservation.TableId,-12} {formattedDate,-20} {reservation.PartySize,-12}");
             }
         }
 
