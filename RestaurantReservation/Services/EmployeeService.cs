@@ -36,7 +36,7 @@ public class EmployeeService(IEmployeeRepository repository)
         return repository.Delete(id);
     }
 
-    public IEnumerable<Employee> ListManagers()
+    public List<Employee> ListManagers()
     {
         return repository.ListManagers();
     }

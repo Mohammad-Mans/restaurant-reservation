@@ -6,8 +6,8 @@ public interface IEmployeeRepository
 {
     Employee Create(Employee employee);
     Employee? GetById(int id);
-    IEnumerable<Employee> GetAll();
+    List<Employee> GetAll();
     Employee? Update(Employee employee);
     bool Delete(int id);
-    IEnumerable<Employee> ListManagers();
+    List<Employee> ListManagers();
 }

@@ -6,7 +6,7 @@ public interface IReservationRepository
 {
     Reservation Create(Reservation reservation);
     Reservation? GetById(int id);
-    IEnumerable<Reservation> GetAll();
+    List<Reservation> GetAll();
     Reservation? Update(Reservation reservation);
     bool Delete(int id);
 }

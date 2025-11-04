@@ -17,7 +17,7 @@ public class OrderRepository(RestaurantReservationDbContext context) : IOrderRep
         return context.Orders.Find(id);
     }
 
-    public IEnumerable<Order> GetAll()
+    public List<Order> GetAll()
     {
         return context.Orders.ToList();
     }

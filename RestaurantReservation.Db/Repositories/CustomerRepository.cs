@@ -17,7 +17,7 @@ public class CustomerRepository(RestaurantReservationDbContext context) : ICusto
         return context.Customers.Find(id);
     }
 
-    public IEnumerable<Customer> GetAll()
+    public List<Customer> GetAll()
     {
         return context.Customers.ToList();
     }

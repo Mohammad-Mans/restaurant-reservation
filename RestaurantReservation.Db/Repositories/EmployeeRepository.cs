@@ -17,7 +17,7 @@ public class EmployeeRepository(RestaurantReservationDbContext context) : IEmplo
         return context.Employees.Find(id);
     }
 
-    public IEnumerable<Employee> GetAll()
+    public List<Employee> GetAll()
     {
         return context.Employees.ToList();
     }
@@ -46,7 +46,7 @@ public class EmployeeRepository(RestaurantReservationDbContext context) : IEmplo
         return true;
     }
 
-    public IEnumerable<Employee> ListManagers()
+    public List<Employee> ListManagers()
     {
         return context.Employees
             .Where(e => e.Position.ToLower() == "manager".ToLower())

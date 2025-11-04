@@ -6,7 +6,7 @@ public interface IRestaurantRepository
 {
     Restaurant Create(Restaurant restaurant);
     Restaurant? GetById(int id);
-    IEnumerable<Restaurant> GetAll();
+    List<Restaurant> GetAll();
     Restaurant? Update(Restaurant restaurant);
     bool Delete(int id);
 }

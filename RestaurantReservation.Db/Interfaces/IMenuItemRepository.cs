@@ -6,7 +6,7 @@ public interface IMenuItemRepository
 {
     MenuItem Create(MenuItem menuItem);
     MenuItem? GetById(int id);
-    IEnumerable<MenuItem> GetAll();
+    List<MenuItem> GetAll();
     MenuItem? Update(MenuItem menuItem);
     bool Delete(int id);
 }

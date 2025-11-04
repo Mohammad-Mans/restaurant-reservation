@@ -17,7 +17,7 @@ public class TableRepository(RestaurantReservationDbContext context) : ITableRep
         return context.Tables.Find(id);
     }
 
-    public IEnumerable<Table> GetAll()
+    public List<Table> GetAll()
     {
         return context.Tables.ToList();
     }

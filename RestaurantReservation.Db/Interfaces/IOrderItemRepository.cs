@@ -6,7 +6,7 @@ public interface IOrderItemRepository
 {
     OrderItem Create(OrderItem orderItem);
     OrderItem? GetById(int id);
-    IEnumerable<OrderItem> GetAll();
+    List<OrderItem> GetAll();
     OrderItem? Update(OrderItem orderItem);
     bool Delete(int id);
 }

@@ -17,7 +17,7 @@ public class MenuItemRepository(RestaurantReservationDbContext context) : IMenuI
         return context.MenuItems.Find(id);
     }
 
-    public IEnumerable<MenuItem> GetAll()
+    public List<MenuItem> GetAll()
     {
         return context.MenuItems.ToList();
     }

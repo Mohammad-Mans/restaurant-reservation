@@ -6,7 +6,7 @@ public interface ICustomerRepository
 {
     Customer Create(Customer customer);
     Customer? GetById(int id);
-    IEnumerable<Customer> GetAll();
+    List<Customer> GetAll();
     Customer? Update(Customer customer);
     bool Delete(int id);
 }
