@@ -45,4 +45,11 @@ public class EmployeeRepository(RestaurantReservationDbContext context) : IEmplo
         context.SaveChanges();
         return true;
     }
+
+    public IEnumerable<Employee> ListManagers()
+    {
+        return context.Employees
+            .Where(e => e.Position.ToLower() == "manager".ToLower())
+            .ToList();
+    }
 }

@@ -9,4 +9,5 @@ public interface IEmployeeRepository
     IEnumerable<Employee> GetAll();
     Employee? Update(Employee employee);
     bool Delete(int id);
+    IEnumerable<Employee> ListManagers();
 }
