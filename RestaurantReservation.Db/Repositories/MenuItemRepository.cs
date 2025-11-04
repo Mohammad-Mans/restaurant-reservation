@@ -45,4 +45,12 @@ public class MenuItemRepository(RestaurantReservationDbContext context) : IMenuI
         context.SaveChanges();
         return true;
     }
+
+    public List<MenuItem> GetByReservationId(int reservationId)
+    {
+        return context.OrderItems
+            .Where(oi => oi.Order.ReservationId == reservationId)
+            .Select(oi => oi.Item)
+            .ToList();
+    }
 }

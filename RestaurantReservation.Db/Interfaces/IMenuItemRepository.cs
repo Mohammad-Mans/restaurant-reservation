@@ -9,4 +9,5 @@ public interface IMenuItemRepository
     List<MenuItem> GetAll();
     MenuItem? Update(MenuItem menuItem);
     bool Delete(int id);
+    List<MenuItem> GetByReservationId(int reservationId);
 }

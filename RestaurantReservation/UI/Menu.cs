@@ -36,6 +36,9 @@ public class Menu(
                     ListOrdersAndMenuItems();
                     break;
                 case "5":
+                    ListOrderedMenuItems();
+                    break;
+                case "6":
                     exit = true;
                     Console.WriteLine("\nThank you for using Restaurant Reservation System. Goodbye!");
                     break;
@@ -55,7 +58,8 @@ public class Menu(
         Console.WriteLine("  2. List All Managers                  ");
         Console.WriteLine("  3. Get Reservations by Customer      ");
         Console.WriteLine("  4. List Orders and Menu Items         ");
-        Console.WriteLine("  5. Exit                               ");
+        Console.WriteLine("  5. List Ordered Menu Items            ");
+        Console.WriteLine("  6. Exit                               ");
         Console.WriteLine("========================================");
         Console.Write("\nSelect an option: ");
     }
@@ -232,6 +236,47 @@ public class Menu(
         }
 
         Console.WriteLine("Press any key to return to main menu...");
+        Console.ReadKey();
+        Console.WriteLine();
+    }
+
+    private void ListOrderedMenuItems()
+    {
+        Console.WriteLine("\n=== List Ordered Menu Items ===\n");
+        Console.Write("Enter Reservation ID: ");
+
+        if (!int.TryParse(Console.ReadLine(), out var reservationId))
+        {
+            Console.WriteLine("\nInvalid Reservation ID. Please enter a valid number.\n");
+            Console.WriteLine("Press any key to return to main menu...");
+            Console.ReadKey();
+            Console.WriteLine();
+            return;
+        }
+
+        var orderedMenuItems = menuItemService.ListOrderedMenuItems(reservationId);
+
+        Console.WriteLine($"\n=== Ordered Menu Items for Reservation ID {reservationId} ===\n");
+
+        if (orderedMenuItems.Count == 0)
+        {
+            Console.WriteLine("No menu items found for this reservation.");
+        }
+        else
+        {
+            Console.WriteLine($"Found {orderedMenuItems.Count} menu item(s):\n");
+            Console.WriteLine($"{"Item Name",-30} {"Description",-40} {"Price",-10}");
+            Console.WriteLine(new string('-', 80));
+
+            foreach (var item in orderedMenuItems)
+            {
+                var description = item.Description ?? "N/A";
+                Console.WriteLine(
+                    $"{item.Name,-30} {description,-40} ${item.Price,-9:F2}");
+            }
+        }
+
+        Console.WriteLine("\nPress any key to return to main menu...");
         Console.ReadKey();
         Console.WriteLine();
     }

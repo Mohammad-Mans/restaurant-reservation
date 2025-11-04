@@ -35,4 +35,9 @@ public class MenuItemService(IMenuItemRepository repository)
     {
         return repository.Delete(id);
     }
+
+    public List<MenuItem> ListOrderedMenuItems(int reservationId)
+    {
+        return repository.GetByReservationId(reservationId);
+    }
 }
