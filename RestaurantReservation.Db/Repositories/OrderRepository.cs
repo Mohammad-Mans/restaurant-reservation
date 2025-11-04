@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using RestaurantReservation.Db.Interfaces;
 using RestaurantReservation.Db.Models;
 
@@ -44,5 +45,14 @@ public class OrderRepository(RestaurantReservationDbContext context) : IOrderRep
         context.Orders.Remove(order);
         context.SaveChanges();
         return true;
+    }
+
+    public List<Order> GetByReservationId(int reservationId)
+    {
+        return context.Orders
+            .Where(o => o.ReservationId == reservationId)
+            .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Item)
+            .ToList();
     }
 }

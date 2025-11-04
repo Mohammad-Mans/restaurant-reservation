@@ -33,6 +33,9 @@ public class Menu(
                     GetReservationsByCustomer();
                     break;
                 case "4":
+                    ListOrdersAndMenuItems();
+                    break;
+                case "5":
                     exit = true;
                     Console.WriteLine("\nThank you for using Restaurant Reservation System. Goodbye!");
                     break;
@@ -51,7 +54,8 @@ public class Menu(
         Console.WriteLine("  1. Perform CRUD Operations            ");
         Console.WriteLine("  2. List All Managers                  ");
         Console.WriteLine("  3. Get Reservations by Customer      ");
-        Console.WriteLine("  4. Exit                               ");
+        Console.WriteLine("  4. List Orders and Menu Items         ");
+        Console.WriteLine("  5. Exit                               ");
         Console.WriteLine("========================================");
         Console.Write("\nSelect an option: ");
     }
@@ -166,6 +170,68 @@ public class Menu(
         }
 
         Console.WriteLine("\nPress any key to return to main menu...");
+        Console.ReadKey();
+        Console.WriteLine();
+    }
+
+    private void ListOrdersAndMenuItems()
+    {
+        Console.WriteLine("\n=== List Orders and Menu Items ===\n");
+        Console.Write("Enter Reservation ID: ");
+
+        if (!int.TryParse(Console.ReadLine(), out var reservationId))
+        {
+            Console.WriteLine("\nInvalid Reservation ID. Please enter a valid number.\n");
+            Console.WriteLine("Press any key to return to main menu...");
+            Console.ReadKey();
+            Console.WriteLine();
+            return;
+        }
+
+        var orders = orderService.ListOrdersAndMenuItems(reservationId);
+
+        Console.WriteLine($"\n=== Orders and Menu Items for Reservation ID {reservationId} ===\n");
+
+        if (orders.Count == 0)
+        {
+            Console.WriteLine("No orders found for this reservation.");
+        }
+        else
+        {
+            Console.WriteLine($"Found {orders.Count} order(s):\n");
+
+            foreach (var order in orders)
+            {
+                var formattedDate = order.OrderDate.ToString("yyyy-MM-dd HH:mm:ss");
+                Console.WriteLine($"Order ID: {order.OrderId}");
+                Console.WriteLine($"  Order Date: {formattedDate}");
+                Console.WriteLine($"  Employee ID: {order.EmployeeId}");
+                Console.WriteLine($"  Total Amount: ${order.TotalAmount:F2}");
+                Console.WriteLine("  Menu Items:");
+
+                if (order.OrderItems.Count == 0)
+                {
+                    Console.WriteLine("    No menu items found for this order.");
+                }
+                else
+                {
+                    Console.WriteLine($"    {"Item Name",-30} {"Quantity",-10} {"Price",-10} {"Subtotal",-10}");
+                    Console.WriteLine($"    {new string('-', 60)}");
+
+                    foreach (var orderItem in order.OrderItems)
+                    {
+                        var item = orderItem.Item;
+                        var subtotal = item.Price * orderItem.Quantity;
+                        Console.WriteLine(
+                            $"    {item.Name,-30} {orderItem.Quantity,-10} ${item.Price,-9:F2} ${subtotal,-9:F2}");
+                    }
+                }
+
+                Console.WriteLine();
+            }
+        }
+
+        Console.WriteLine("Press any key to return to main menu...");
         Console.ReadKey();
         Console.WriteLine();
     }

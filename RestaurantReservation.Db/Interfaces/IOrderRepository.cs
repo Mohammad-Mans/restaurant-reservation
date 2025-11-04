@@ -9,4 +9,5 @@ public interface IOrderRepository
     List<Order> GetAll();
     Order? Update(Order order);
     bool Delete(int id);
+    List<Order> GetByReservationId(int reservationId);
 }

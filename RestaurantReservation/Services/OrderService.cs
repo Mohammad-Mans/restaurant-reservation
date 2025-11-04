@@ -35,4 +35,9 @@ public class OrderService(IOrderRepository repository)
     {
         return repository.Delete(id);
     }
+
+    public List<Order> ListOrdersAndMenuItems(int reservationId)
+    {
+        return repository.GetByReservationId(reservationId);
+    }
 }
