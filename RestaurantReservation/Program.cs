@@ -15,6 +15,8 @@ var menuItemRepository = new MenuItemRepository(context);
 var reservationRepository = new ReservationRepository(context);
 var orderRepository = new OrderRepository(context);
 var orderItemRepository = new OrderItemRepository(context);
+var reservationDetailsViewRepository = new ReservationDetailsViewRepository(context);
+var employeeDetailsViewRepository = new EmployeeDetailsViewRepository(context);
 
 var restaurantService = new RestaurantService(restaurantRepository);
 var customerService = new CustomerService(customerRepository);
@@ -24,6 +26,8 @@ var menuItemService = new MenuItemService(menuItemRepository);
 var reservationService = new ReservationService(reservationRepository);
 var orderService = new OrderService(orderRepository);
 var orderItemService = new OrderItemService(orderItemRepository);
+var reservationDetailsViewService = new ReservationDetailsViewService(reservationDetailsViewRepository);
+var employeeDetailsViewService = new EmployeeDetailsViewService(employeeDetailsViewRepository);
 
 var menu = new Menu(
     restaurantService,
@@ -33,6 +37,8 @@ var menu = new Menu(
     menuItemService,
     reservationService,
     orderService,
-    orderItemService);
+    orderItemService,
+    reservationDetailsViewService,
+    employeeDetailsViewService);
 
 menu.Show();
