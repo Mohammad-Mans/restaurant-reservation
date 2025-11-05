@@ -47,6 +47,9 @@ public class Menu(
                     UseViews();
                     break;
                 case "8":
+                    CalculateRestaurantRevenue();
+                    break;
+                case "9":
                     exit = true;
                     Console.WriteLine("\nThank you for using Restaurant Reservation System. Goodbye!");
                     break;
@@ -69,7 +72,8 @@ public class Menu(
         Console.WriteLine("  5. List Ordered Menu Items            ");
         Console.WriteLine("  6. Calculate Average Order Amount     ");
         Console.WriteLine("  7. Use Views                           ");
-        Console.WriteLine("  8. Exit                               ");
+        Console.WriteLine("  8. Calculate Restaurant Revenue          ");
+        Console.WriteLine("  9. Exit                               ");
         Console.WriteLine("========================================");
         Console.Write("\nSelect an option: ");
     }
@@ -317,6 +321,42 @@ public class Menu(
         {
             Console.WriteLine($"Average Order Amount: ${averageAmount.Value:F2}");
         }
+
+        Console.WriteLine("\nPress any key to return to main menu...");
+        Console.ReadKey();
+        Console.WriteLine();
+    }
+
+    private void CalculateRestaurantRevenue()
+    {
+        Console.WriteLine("\n=== Calculate Restaurant Revenue ===\n");
+        Console.Write("Enter Restaurant ID: ");
+
+        if (!int.TryParse(Console.ReadLine(), out var restaurantId))
+        {
+            Console.WriteLine("\nInvalid Restaurant ID. Please enter a valid number.\n");
+            Console.WriteLine("Press any key to return to main menu...");
+            Console.ReadKey();
+            Console.WriteLine();
+            return;
+        }
+
+        var restaurant = restaurantService.GetRestaurantById(restaurantId);
+        if (restaurant == null)
+        {
+            Console.WriteLine($"\nRestaurant with ID {restaurantId} not found.");
+            Console.WriteLine("\nPress any key to return to main menu...");
+            Console.ReadKey();
+            Console.WriteLine();
+            return;
+        }
+
+        var revenue = restaurantService.CalculateRestaurantRevenue(restaurantId);
+
+        Console.WriteLine($"\n=== Revenue for {restaurant.Name} ===\n");
+        Console.WriteLine($"Restaurant ID: {restaurantId}");
+        Console.WriteLine($"Restaurant Name: {restaurant.Name}");
+        Console.WriteLine($"Total Revenue: ${revenue:F2}");
 
         Console.WriteLine("\nPress any key to return to main menu...");
         Console.ReadKey();

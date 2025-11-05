@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RestaurantReservation.Db.Models;
 
@@ -171,5 +170,12 @@ public class RestaurantReservationDbContext : DbContext
             entity.HasNoKey();
             entity.ToView("vw_EmployeeDetails");
         });
+
+        modelBuilder.HasDbFunction(
+                typeof(DbFunctions).GetMethod(
+                    nameof(DbFunctions.CalculateRestaurantRevenue),
+                    new[] { typeof(int) })!)
+            .HasName("CalculateRestaurantRevenue")
+            .HasSchema("dbo");
     }
 }

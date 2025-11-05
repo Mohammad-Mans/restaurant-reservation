@@ -9,4 +9,5 @@ public interface IRestaurantRepository
     List<Restaurant> GetAll();
     Restaurant? Update(Restaurant restaurant);
     bool Delete(int id);
+    decimal CalculateRestaurantRevenue(int restaurantId);
 }

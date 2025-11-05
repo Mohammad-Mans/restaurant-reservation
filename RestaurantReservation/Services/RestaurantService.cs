@@ -36,4 +36,14 @@ public class RestaurantService(IRestaurantRepository repository)
     {
         return repository.Delete(id);
     }
+
+    public Restaurant? GetRestaurantById(int id)
+    {
+        return repository.GetById(id);
+    }
+
+    public decimal CalculateRestaurantRevenue(int restaurantId)
+    {
+        return repository.CalculateRestaurantRevenue(restaurantId);
+    }
 }

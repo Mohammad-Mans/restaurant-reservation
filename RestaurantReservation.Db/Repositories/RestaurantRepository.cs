@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using RestaurantReservation.Db.Interfaces;
 using RestaurantReservation.Db.Models;
 
@@ -44,5 +45,12 @@ public class RestaurantRepository(RestaurantReservationDbContext context) : IRes
         context.Restaurants.Remove(restaurant);
         context.SaveChanges();
         return true;
+    }
+
+    public decimal CalculateRestaurantRevenue(int restaurantId)
+    {
+        return context.Database
+            .SqlQueryRaw<decimal>("SELECT dbo.CalculateRestaurantRevenue({0}) AS Value", restaurantId)
+            .FirstOrDefault();
     }
 }
