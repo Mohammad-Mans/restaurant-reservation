@@ -35,4 +35,9 @@ public class CustomerService(ICustomerRepository repository)
     {
         return repository.Delete(id);
     }
+
+    public List<Customer> FindCustomersByPartySize(int minPartySize)
+    {
+        return repository.FindCustomersByPartySize(minPartySize);
+    }
 }

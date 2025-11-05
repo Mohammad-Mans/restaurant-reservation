@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using RestaurantReservation.Db.Interfaces;
 using RestaurantReservation.Db.Models;
 
@@ -44,5 +45,12 @@ public class CustomerRepository(RestaurantReservationDbContext context) : ICusto
         context.Customers.Remove(customer);
         context.SaveChanges();
         return true;
+    }
+
+    public List<Customer> FindCustomersByPartySize(int minPartySize)
+    {
+        return context.Customers
+            .FromSqlRaw("EXEC dbo.sp_FindCustomersByPartySize {0}", minPartySize)
+            .ToList();
     }
 }

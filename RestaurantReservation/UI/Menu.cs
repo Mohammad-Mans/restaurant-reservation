@@ -50,6 +50,9 @@ public class Menu(
                     CalculateRestaurantRevenue();
                     break;
                 case "9":
+                    FindCustomersByPartySize();
+                    break;
+                case "10":
                     exit = true;
                     Console.WriteLine("\nThank you for using Restaurant Reservation System. Goodbye!");
                     break;
@@ -73,7 +76,8 @@ public class Menu(
         Console.WriteLine("  6. Calculate Average Order Amount     ");
         Console.WriteLine("  7. Use Views                           ");
         Console.WriteLine("  8. Calculate Restaurant Revenue          ");
-        Console.WriteLine("  9. Exit                               ");
+        Console.WriteLine("  9. Find Customers by Party Size          ");
+        Console.WriteLine(" 10. Exit                               ");
         Console.WriteLine("========================================");
         Console.Write("\nSelect an option: ");
     }
@@ -357,6 +361,48 @@ public class Menu(
         Console.WriteLine($"Restaurant ID: {restaurantId}");
         Console.WriteLine($"Restaurant Name: {restaurant.Name}");
         Console.WriteLine($"Total Revenue: ${revenue:F2}");
+
+        Console.WriteLine("\nPress any key to return to main menu...");
+        Console.ReadKey();
+        Console.WriteLine();
+    }
+
+    private void FindCustomersByPartySize()
+    {
+        Console.WriteLine("\n=== Find Customers by Party Size (Stored Procedure) ===\n");
+        Console.Write("Enter minimum party size: ");
+
+        if (!int.TryParse(Console.ReadLine(), out var minPartySize))
+        {
+            Console.WriteLine("\nInvalid party size. Please enter a valid number.\n");
+            Console.WriteLine("Press any key to return to main menu...");
+            Console.ReadKey();
+            Console.WriteLine();
+            return;
+        }
+
+        var customers = customerService.FindCustomersByPartySize(minPartySize);
+
+        Console.WriteLine($"\n=== Customers with Reservations Party Size > {minPartySize} ===\n");
+
+        if (customers.Count == 0)
+        {
+            Console.WriteLine("No customers found with reservations exceeding the specified party size.");
+        }
+        else
+        {
+            Console.WriteLine($"Found {customers.Count} customer(s):\n");
+            Console.WriteLine($"{"ID",-5} {"First Name",-15} {"Last Name",-15} {"Email",-30} {"Phone",-15}");
+            Console.WriteLine(new string('-', 80));
+
+            foreach (var customer in customers)
+            {
+                var email = customer.Email ?? "N/A";
+                var phone = customer.PhoneNumber ?? "N/A";
+                Console.WriteLine(
+                    $"{customer.CustomerId,-5} {customer.FirstName,-15} {customer.LastName,-15} {email,-30} {phone,-15}");
+            }
+        }
 
         Console.WriteLine("\nPress any key to return to main menu...");
         Console.ReadKey();

@@ -9,4 +9,5 @@ public interface ICustomerRepository
     List<Customer> GetAll();
     Customer? Update(Customer customer);
     bool Delete(int id);
+    List<Customer> FindCustomersByPartySize(int minPartySize);
 }
