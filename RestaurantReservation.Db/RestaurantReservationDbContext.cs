@@ -17,6 +17,7 @@ public class RestaurantReservationDbContext : DbContext
     public DbSet<Table> Tables { get; set; }
 
     public DbSet<ReservationDetailsView> ReservationDetailsView { get; set; }
+    public DbSet<EmployeeDetailsView> EmployeeDetailsView { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -163,6 +164,12 @@ public class RestaurantReservationDbContext : DbContext
         {
             entity.HasNoKey();
             entity.ToView("vw_ReservationDetails");
+        });
+
+        modelBuilder.Entity<EmployeeDetailsView>(entity =>
+        {
+            entity.HasNoKey();
+            entity.ToView("vw_EmployeeDetails");
         });
     }
 }
