@@ -40,4 +40,9 @@ public class OrderService(IOrderRepository repository)
     {
         return repository.GetByReservationId(reservationId);
     }
+
+    public decimal? CalculateAverageOrderAmount(int employeeId)
+    {
+        return repository.GetAverageOrderAmountByEmployeeId(employeeId);
+    }
 }

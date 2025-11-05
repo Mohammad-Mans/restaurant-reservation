@@ -55,4 +55,14 @@ public class OrderRepository(RestaurantReservationDbContext context) : IOrderRep
                 .ThenInclude(oi => oi.Item)
             .ToList();
     }
+
+    public decimal? GetAverageOrderAmountByEmployeeId(int employeeId)
+    {
+        var employeeOrders = context.Orders.Where(o => o.EmployeeId == employeeId);
+
+        if (!employeeOrders.Any())
+            return null;
+
+        return employeeOrders.Average(o => o.TotalAmount);
+    }
 }

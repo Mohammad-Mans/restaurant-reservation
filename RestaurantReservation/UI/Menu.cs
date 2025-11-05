@@ -39,6 +39,9 @@ public class Menu(
                     ListOrderedMenuItems();
                     break;
                 case "6":
+                    CalculateAverageOrderAmount();
+                    break;
+                case "7":
                     exit = true;
                     Console.WriteLine("\nThank you for using Restaurant Reservation System. Goodbye!");
                     break;
@@ -59,7 +62,8 @@ public class Menu(
         Console.WriteLine("  3. Get Reservations by Customer      ");
         Console.WriteLine("  4. List Orders and Menu Items         ");
         Console.WriteLine("  5. List Ordered Menu Items            ");
-        Console.WriteLine("  6. Exit                               ");
+        Console.WriteLine("  6. Calculate Average Order Amount     ");
+        Console.WriteLine("  7. Exit                               ");
         Console.WriteLine("========================================");
         Console.Write("\nSelect an option: ");
     }
@@ -274,6 +278,38 @@ public class Menu(
                 Console.WriteLine(
                     $"{item.Name,-30} {description,-40} ${item.Price,-9:F2}");
             }
+        }
+
+        Console.WriteLine("\nPress any key to return to main menu...");
+        Console.ReadKey();
+        Console.WriteLine();
+    }
+
+    private void CalculateAverageOrderAmount()
+    {
+        Console.WriteLine("\n=== Calculate Average Order Amount ===\n");
+        Console.Write("Enter Employee ID: ");
+
+        if (!int.TryParse(Console.ReadLine(), out var employeeId))
+        {
+            Console.WriteLine("\nInvalid Employee ID. Please enter a valid number.\n");
+            Console.WriteLine("Press any key to return to main menu...");
+            Console.ReadKey();
+            Console.WriteLine();
+            return;
+        }
+
+        var averageAmount = orderService.CalculateAverageOrderAmount(employeeId);
+
+        Console.WriteLine($"\n=== Average Order Amount for Employee ID {employeeId} ===\n");
+
+        if (averageAmount == null)
+        {
+            Console.WriteLine("No orders found for this employee.");
+        }
+        else
+        {
+            Console.WriteLine($"Average Order Amount: ${averageAmount.Value:F2}");
         }
 
         Console.WriteLine("\nPress any key to return to main menu...");
