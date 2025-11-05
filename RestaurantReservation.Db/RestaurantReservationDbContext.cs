@@ -16,6 +16,8 @@ public class RestaurantReservationDbContext : DbContext
     public DbSet<Reservation> Reservations { get; set; }
     public DbSet<Table> Tables { get; set; }
 
+    public DbSet<ReservationDetailsView> ReservationDetailsView { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseSqlServer(
@@ -156,5 +158,11 @@ public class RestaurantReservationDbContext : DbContext
             new OrderItem { OrderItemId = 4, OrderId = 3, ItemId = 3, Quantity = 6 },
             new OrderItem { OrderItemId = 5, OrderId = 4, ItemId = 4, Quantity = 1 }
         );
+
+        modelBuilder.Entity<ReservationDetailsView>(entity =>
+        {
+            entity.HasNoKey();
+            entity.ToView("vw_ReservationDetails");
+        });
     }
 }
