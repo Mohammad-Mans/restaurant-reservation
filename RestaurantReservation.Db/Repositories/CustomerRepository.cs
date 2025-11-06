@@ -53,4 +53,31 @@ public class CustomerRepository(RestaurantReservationDbContext context) : ICusto
             .FromSqlRaw("EXEC dbo.sp_FindCustomersByPartySize {0}", minPartySize)
             .ToListAsync();
     }
+
+    public async Task<List<Customer>> SearchAsync(string? firstName = null, string? lastName = null, string? email = null, string? phoneNumber = null)
+    {
+        var query = context.Customers.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(firstName))
+        {
+            query = query.Where(c => c.FirstName.Contains(firstName));
+        }
+
+        if (!string.IsNullOrWhiteSpace(lastName))
+        {
+            query = query.Where(c => c.LastName.Contains(lastName));
+        }
+
+        if (!string.IsNullOrWhiteSpace(email))
+        {
+            query = query.Where(c => c.Email != null && c.Email.Contains(email));
+        }
+
+        if (!string.IsNullOrWhiteSpace(phoneNumber))
+        {
+            query = query.Where(c => c.PhoneNumber != null && c.PhoneNumber.Contains(phoneNumber));
+        }
+
+        return await query.ToListAsync();
+    }
 }

@@ -40,4 +40,9 @@ public class CustomerService(ICustomerRepository repository)
     {
         return await repository.FindCustomersByPartySizeAsync(minPartySize);
     }
+
+    public async Task<List<Customer>> SearchCustomersAsync(string? firstName = null, string? lastName = null, string? email = null, string? phoneNumber = null)
+    {
+        return await repository.SearchAsync(firstName, lastName, email, phoneNumber);
+    }
 }

@@ -53,6 +53,9 @@ public class Menu(
                     await FindCustomersByPartySizeAsync();
                     break;
                 case "10":
+                    await SearchCustomersAsync();
+                    break;
+                case "11":
                     exit = true;
                     Console.WriteLine("\nThank you for using Restaurant Reservation System. Goodbye!");
                     break;
@@ -77,7 +80,8 @@ public class Menu(
         Console.WriteLine("  7. Use Views                           ");
         Console.WriteLine("  8. Calculate Restaurant Revenue          ");
         Console.WriteLine("  9. Find Customers by Party Size          ");
-        Console.WriteLine(" 10. Exit                               ");
+        Console.WriteLine(" 10. Search Customers                      ");
+        Console.WriteLine(" 11. Exit                               ");
         Console.WriteLine("========================================");
         Console.Write("\nSelect an option: ");
     }
@@ -716,6 +720,54 @@ public class Menu(
                 var employeeName = $"{employee.FirstName} {employee.LastName}";
                 Console.WriteLine(
                     $"{employee.EmployeeId,-12} {employeeName,-25} {employee.Position,-20}");
+            }
+        }
+
+        Console.WriteLine("\nPress any key to continue...");
+        Console.ReadKey();
+    }
+
+    private async Task SearchCustomersAsync()
+    {
+        Console.WriteLine("\n=== Search Customers ===\n");
+        Console.WriteLine("Enter search criteria (press Enter to skip any field):\n");
+
+        Console.Write("First Name (partial match): ");
+        var firstName = Console.ReadLine();
+
+        Console.Write("Last Name (partial match): ");
+        var lastName = Console.ReadLine();
+
+        Console.Write("Email (partial match): ");
+        var email = Console.ReadLine();
+
+        Console.Write("Phone Number (partial match): ");
+        var phoneNumber = Console.ReadLine();
+
+        var customers = await customerService.SearchCustomersAsync(
+            string.IsNullOrWhiteSpace(firstName) ? null : firstName.Trim(),
+            string.IsNullOrWhiteSpace(lastName) ? null : lastName.Trim(),
+            string.IsNullOrWhiteSpace(email) ? null : email.Trim(),
+            string.IsNullOrWhiteSpace(phoneNumber) ? null : phoneNumber.Trim()
+        );
+
+        Console.WriteLine("\n=== Search Results ===\n");
+
+        if (customers.Count == 0)
+        {
+            Console.WriteLine("No customers found matching the search criteria.");
+        }
+        else
+        {
+            Console.WriteLine($"Found {customers.Count} customer(s):\n");
+            Console.WriteLine(
+                $"{"Customer ID",-12} {"First Name",-20} {"Last Name",-20} {"Email",-30} {"Phone",-15}");
+            Console.WriteLine(new string('-', 97));
+
+            foreach (var customer in customers)
+            {
+                Console.WriteLine(
+                    $"{customer.CustomerId,-12} {customer.FirstName,-20} {customer.LastName,-20} {customer.Email ?? "N/A",-30} {customer.PhoneNumber ?? "N/A",-15}");
             }
         }
 
