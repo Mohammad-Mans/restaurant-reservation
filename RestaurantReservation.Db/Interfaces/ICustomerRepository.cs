@@ -4,10 +4,10 @@ namespace RestaurantReservation.Db.Interfaces;
 
 public interface ICustomerRepository
 {
-    Customer Create(Customer customer);
-    Customer? GetById(int id);
-    List<Customer> GetAll();
-    Customer? Update(Customer customer);
-    bool Delete(int id);
-    List<Customer> FindCustomersByPartySize(int minPartySize);
+    Task<Customer> CreateAsync(Customer customer);
+    Task<Customer?> GetByIdAsync(int id);
+    Task<List<Customer>> GetAllAsync();
+    Task<Customer?> UpdateAsync(Customer customer);
+    Task<bool> DeleteAsync(int id);
+    Task<List<Customer>> FindCustomersByPartySizeAsync(int minPartySize);
 }

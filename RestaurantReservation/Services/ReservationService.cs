@@ -5,7 +5,7 @@ namespace RestaurantReservation.Services;
 
 public class ReservationService(IReservationRepository repository)
 {
-    public Reservation CreateReservation(int customerId, int restaurantId, int tableId, DateTime reservationDate,
+    public async Task<Reservation> CreateReservationAsync(int customerId, int restaurantId, int tableId, DateTime reservationDate,
         int partySize)
     {
         var reservation = new Reservation
@@ -16,13 +16,13 @@ public class ReservationService(IReservationRepository repository)
             ReservationDate = reservationDate,
             PartySize = partySize
         };
-        return repository.Create(reservation);
+        return await repository.CreateAsync(reservation);
     }
 
-    public Reservation? UpdateReservation(int id, int? customerId = null, int? restaurantId = null, int? tableId = null,
+    public async Task<Reservation?> UpdateReservationAsync(int id, int? customerId = null, int? restaurantId = null, int? tableId = null,
         DateTime? reservationDate = null, int? partySize = null)
     {
-        var reservation = repository.GetById(id);
+        var reservation = await repository.GetByIdAsync(id);
         if (reservation == null) return null;
 
         if (customerId.HasValue) reservation.CustomerId = customerId.Value;
@@ -31,16 +31,16 @@ public class ReservationService(IReservationRepository repository)
         if (reservationDate.HasValue) reservation.ReservationDate = reservationDate.Value;
         if (partySize.HasValue) reservation.PartySize = partySize.Value;
 
-        return repository.Update(reservation);
+        return await repository.UpdateAsync(reservation);
     }
 
-    public bool DeleteReservation(int id)
+    public async Task<bool> DeleteReservationAsync(int id)
     {
-        return repository.Delete(id);
+        return await repository.DeleteAsync(id);
     }
 
-    public List<Reservation> GetReservationsByCustomer(int customerId)
+    public async Task<List<Reservation>> GetReservationsByCustomerAsync(int customerId)
     {
-        return repository.GetByCustomerId(customerId);
+        return await repository.GetByCustomerIdAsync(customerId);
     }
 }

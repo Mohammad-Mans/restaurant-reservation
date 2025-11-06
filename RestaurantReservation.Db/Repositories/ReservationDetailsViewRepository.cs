@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using RestaurantReservation.Db.Interfaces;
 using RestaurantReservation.Db.Models;
 
@@ -6,28 +7,28 @@ namespace RestaurantReservation.Db.Repositories;
 public class ReservationDetailsViewRepository(RestaurantReservationDbContext context)
     : IReservationDetailsViewRepository
 {
-    public List<ReservationDetailsView> GetAll()
+    public async Task<List<ReservationDetailsView>> GetAllAsync()
     {
-        return context.ReservationDetailsView.ToList();
+        return await context.ReservationDetailsView.ToListAsync();
     }
 
-    public ReservationDetailsView? GetByReservationId(int reservationId)
+    public async Task<ReservationDetailsView?> GetByReservationIdAsync(int reservationId)
     {
-        return context.ReservationDetailsView
-            .FirstOrDefault(r => r.ReservationId == reservationId);
+        return await context.ReservationDetailsView
+            .FirstOrDefaultAsync(r => r.ReservationId == reservationId);
     }
 
-    public List<ReservationDetailsView> GetByCustomerId(int customerId)
+    public async Task<List<ReservationDetailsView>> GetByCustomerIdAsync(int customerId)
     {
-        return context.ReservationDetailsView
+        return await context.ReservationDetailsView
             .Where(r => r.CustomerId == customerId)
-            .ToList();
+            .ToListAsync();
     }
 
-    public List<ReservationDetailsView> GetByRestaurantId(int restaurantId)
+    public async Task<List<ReservationDetailsView>> GetByRestaurantIdAsync(int restaurantId)
     {
-        return context.ReservationDetailsView
+        return await context.ReservationDetailsView
             .Where(r => r.RestaurantId == restaurantId)
-            .ToList();
+            .ToListAsync();
     }
 }

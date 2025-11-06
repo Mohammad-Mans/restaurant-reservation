@@ -4,9 +4,9 @@ namespace RestaurantReservation.Db.Interfaces;
 
 public interface IOrderItemRepository
 {
-    OrderItem Create(OrderItem orderItem);
-    OrderItem? GetById(int id);
-    List<OrderItem> GetAll();
-    OrderItem? Update(OrderItem orderItem);
-    bool Delete(int id);
+    Task<OrderItem> CreateAsync(OrderItem orderItem);
+    Task<OrderItem?> GetByIdAsync(int id);
+    Task<List<OrderItem>> GetAllAsync();
+    Task<OrderItem?> UpdateAsync(OrderItem orderItem);
+    Task<bool> DeleteAsync(int id);
 }

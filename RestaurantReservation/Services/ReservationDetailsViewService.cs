@@ -5,23 +5,23 @@ namespace RestaurantReservation.Services;
 
 public class ReservationDetailsViewService(IReservationDetailsViewRepository repository)
 {
-    public List<ReservationDetailsView> GetAll()
+    public async Task<List<ReservationDetailsView>> GetAllAsync()
     {
-        return repository.GetAll();
+        return await repository.GetAllAsync();
     }
 
-    public ReservationDetailsView? GetByReservationId(int reservationId)
+    public async Task<ReservationDetailsView?> GetByReservationIdAsync(int reservationId)
     {
-        return repository.GetByReservationId(reservationId);
+        return await repository.GetByReservationIdAsync(reservationId);
     }
 
-    public List<ReservationDetailsView> GetByCustomerId(int customerId)
+    public async Task<List<ReservationDetailsView>> GetByCustomerIdAsync(int customerId)
     {
-        return repository.GetByCustomerId(customerId);
+        return await repository.GetByCustomerIdAsync(customerId);
     }
 
-    public List<ReservationDetailsView> GetByRestaurantId(int restaurantId)
+    public async Task<List<ReservationDetailsView>> GetByRestaurantIdAsync(int restaurantId)
     {
-        return repository.GetByRestaurantId(restaurantId);
+        return await repository.GetByRestaurantIdAsync(restaurantId);
     }
 }

@@ -14,7 +14,7 @@ public class Menu(
     ReservationDetailsViewService reservationDetailsViewService,
     EmployeeDetailsViewService employeeDetailsViewService)
 {
-    public void Show()
+    public async Task ShowAsync()
     {
         var exit = false;
 
@@ -26,31 +26,31 @@ public class Menu(
             switch (choice)
             {
                 case "1":
-                    PerformCrudOperations();
+                    await PerformCrudOperationsAsync();
                     break;
                 case "2":
-                    ListAllManagers();
+                    await ListAllManagersAsync();
                     break;
                 case "3":
-                    GetReservationsByCustomer();
+                    await GetReservationsByCustomerAsync();
                     break;
                 case "4":
-                    ListOrdersAndMenuItems();
+                    await ListOrdersAndMenuItemsAsync();
                     break;
                 case "5":
-                    ListOrderedMenuItems();
+                    await ListOrderedMenuItemsAsync();
                     break;
                 case "6":
-                    CalculateAverageOrderAmount();
+                    await CalculateAverageOrderAmountAsync();
                     break;
                 case "7":
-                    UseViews();
+                    await UseViewsAsync();
                     break;
                 case "8":
-                    CalculateRestaurantRevenue();
+                    await CalculateRestaurantRevenueAsync();
                     break;
                 case "9":
-                    FindCustomersByPartySize();
+                    await FindCustomersByPartySizeAsync();
                     break;
                 case "10":
                     exit = true;
@@ -82,43 +82,43 @@ public class Menu(
         Console.Write("\nSelect an option: ");
     }
 
-    private void PerformCrudOperations()
+    private async Task PerformCrudOperationsAsync()
     {
         Console.WriteLine("\n=== Performing CRUD Operations on All Entities ===\n");
 
         // Create operations
-        var restaurant = restaurantService.CreateRestaurant("Demo Restaurant", "123 Main St", "555-0001", "9AM-10PM");
-        var customer = customerService.CreateCustomer("John", "Doe", "john@email.com", "555-0002");
-        var employee = employeeService.CreateEmployee(restaurant.RestaurantId, "Jane", "Smith", "Manager");
-        var table = tableService.CreateTable(restaurant.RestaurantId, 4);
-        var menuItem = menuItemService.CreateMenuItem(restaurant.RestaurantId, "Burger", 12.99m, "Delicious burger");
-        var reservation = reservationService.CreateReservation(customer.CustomerId, restaurant.RestaurantId,
+        var restaurant = await restaurantService.CreateRestaurantAsync("Demo Restaurant", "123 Main St", "555-0001", "9AM-10PM");
+        var customer = await customerService.CreateCustomerAsync("John", "Doe", "john@email.com", "555-0002");
+        var employee = await employeeService.CreateEmployeeAsync(restaurant.RestaurantId, "Jane", "Smith", "Manager");
+        var table = await tableService.CreateTableAsync(restaurant.RestaurantId, 4);
+        var menuItem = await menuItemService.CreateMenuItemAsync(restaurant.RestaurantId, "Burger", 12.99m, "Delicious burger");
+        var reservation = await reservationService.CreateReservationAsync(customer.CustomerId, restaurant.RestaurantId,
             table.TableId,
             DateTime.Now.AddDays(7), 4);
-        var order = orderService.CreateOrder(reservation.ReservationId, employee.EmployeeId, DateTime.Now, 45.98m);
-        var orderItem = orderItemService.CreateOrderItem(order.OrderId, menuItem.ItemId, 2);
+        var order = await orderService.CreateOrderAsync(reservation.ReservationId, employee.EmployeeId, DateTime.Now, 45.98m);
+        var orderItem = await orderItemService.CreateOrderItemAsync(order.OrderId, menuItem.ItemId, 2);
         Console.WriteLine("------ All entities created successfully!");
 
         // Update operations
-        restaurantService.UpdateRestaurant(restaurant.RestaurantId, name: "Updated Restaurant");
-        customerService.UpdateCustomer(customer.CustomerId, email: "john.updated@email.com");
-        employeeService.UpdateEmployee(employee.EmployeeId, position: "Senior Manager");
-        tableService.UpdateTable(table.TableId, capacity: 6);
-        menuItemService.UpdateMenuItem(menuItem.ItemId, price: 14.99m);
-        reservationService.UpdateReservation(reservation.ReservationId, partySize: 6);
-        orderService.UpdateOrder(order.OrderId, totalAmount: 49.98m);
-        orderItemService.UpdateOrderItem(orderItem.OrderItemId, quantity: 3);
+        await restaurantService.UpdateRestaurantAsync(restaurant.RestaurantId, name: "Updated Restaurant");
+        await customerService.UpdateCustomerAsync(customer.CustomerId, email: "john.updated@email.com");
+        await employeeService.UpdateEmployeeAsync(employee.EmployeeId, position: "Senior Manager");
+        await tableService.UpdateTableAsync(table.TableId, capacity: 6);
+        await menuItemService.UpdateMenuItemAsync(menuItem.ItemId, price: 14.99m);
+        await reservationService.UpdateReservationAsync(reservation.ReservationId, partySize: 6);
+        await orderService.UpdateOrderAsync(order.OrderId, totalAmount: 49.98m);
+        await orderItemService.UpdateOrderItemAsync(orderItem.OrderItemId, quantity: 3);
         Console.WriteLine("------ All entities updated successfully!");
 
         // Delete operations (in reverse dependency order)
-        orderItemService.DeleteOrderItem(orderItem.OrderItemId);
-        orderService.DeleteOrder(order.OrderId);
-        reservationService.DeleteReservation(reservation.ReservationId);
-        menuItemService.DeleteMenuItem(menuItem.ItemId);
-        tableService.DeleteTable(table.TableId);
-        employeeService.DeleteEmployee(employee.EmployeeId);
-        customerService.DeleteCustomer(customer.CustomerId);
-        restaurantService.DeleteRestaurant(restaurant.RestaurantId);
+        await orderItemService.DeleteOrderItemAsync(orderItem.OrderItemId);
+        await orderService.DeleteOrderAsync(order.OrderId);
+        await reservationService.DeleteReservationAsync(reservation.ReservationId);
+        await menuItemService.DeleteMenuItemAsync(menuItem.ItemId);
+        await tableService.DeleteTableAsync(table.TableId);
+        await employeeService.DeleteEmployeeAsync(employee.EmployeeId);
+        await customerService.DeleteCustomerAsync(customer.CustomerId);
+        await restaurantService.DeleteRestaurantAsync(restaurant.RestaurantId);
         Console.WriteLine("------ All entities deleted successfully!\n");
 
         Console.WriteLine("Press any key to return to main menu...");
@@ -126,11 +126,11 @@ public class Menu(
         Console.WriteLine();
     }
 
-    private void ListAllManagers()
+    private async Task ListAllManagersAsync()
     {
         Console.WriteLine("\n=== List of All Managers ===\n");
 
-        var managers = employeeService.ListManagers();
+        var managers = await employeeService.ListManagersAsync();
 
         if (managers.Count == 0)
         {
@@ -154,7 +154,7 @@ public class Menu(
         Console.WriteLine();
     }
 
-    private void GetReservationsByCustomer()
+    private async Task GetReservationsByCustomerAsync()
     {
         Console.WriteLine("\n=== Get Reservations by Customer ===\n");
         Console.Write("Enter Customer ID: ");
@@ -168,7 +168,7 @@ public class Menu(
             return;
         }
 
-        var reservations = reservationService.GetReservationsByCustomer(customerId);
+        var reservations = await reservationService.GetReservationsByCustomerAsync(customerId);
 
         Console.WriteLine($"\n=== Reservations for Customer ID {customerId} ===\n");
 
@@ -196,7 +196,7 @@ public class Menu(
         Console.WriteLine();
     }
 
-    private void ListOrdersAndMenuItems()
+    private async Task ListOrdersAndMenuItemsAsync()
     {
         Console.WriteLine("\n=== List Orders and Menu Items ===\n");
         Console.Write("Enter Reservation ID: ");
@@ -210,7 +210,7 @@ public class Menu(
             return;
         }
 
-        var orders = orderService.ListOrdersAndMenuItems(reservationId);
+        var orders = await orderService.ListOrdersAndMenuItemsAsync(reservationId);
 
         Console.WriteLine($"\n=== Orders and Menu Items for Reservation ID {reservationId} ===\n");
 
@@ -258,7 +258,7 @@ public class Menu(
         Console.WriteLine();
     }
 
-    private void ListOrderedMenuItems()
+    private async Task ListOrderedMenuItemsAsync()
     {
         Console.WriteLine("\n=== List Ordered Menu Items ===\n");
         Console.Write("Enter Reservation ID: ");
@@ -272,7 +272,7 @@ public class Menu(
             return;
         }
 
-        var orderedMenuItems = menuItemService.ListOrderedMenuItems(reservationId);
+        var orderedMenuItems = await menuItemService.ListOrderedMenuItemsAsync(reservationId);
 
         Console.WriteLine($"\n=== Ordered Menu Items for Reservation ID {reservationId} ===\n");
 
@@ -299,7 +299,7 @@ public class Menu(
         Console.WriteLine();
     }
 
-    private void CalculateAverageOrderAmount()
+    private async Task CalculateAverageOrderAmountAsync()
     {
         Console.WriteLine("\n=== Calculate Average Order Amount ===\n");
         Console.Write("Enter Employee ID: ");
@@ -313,7 +313,7 @@ public class Menu(
             return;
         }
 
-        var averageAmount = orderService.CalculateAverageOrderAmount(employeeId);
+        var averageAmount = await orderService.CalculateAverageOrderAmountAsync(employeeId);
 
         Console.WriteLine($"\n=== Average Order Amount for Employee ID {employeeId} ===\n");
 
@@ -331,7 +331,7 @@ public class Menu(
         Console.WriteLine();
     }
 
-    private void CalculateRestaurantRevenue()
+    private async Task CalculateRestaurantRevenueAsync()
     {
         Console.WriteLine("\n=== Calculate Restaurant Revenue ===\n");
         Console.Write("Enter Restaurant ID: ");
@@ -345,7 +345,7 @@ public class Menu(
             return;
         }
 
-        var restaurant = restaurantService.GetRestaurantById(restaurantId);
+        var restaurant = await restaurantService.GetRestaurantByIdAsync(restaurantId);
         if (restaurant == null)
         {
             Console.WriteLine($"\nRestaurant with ID {restaurantId} not found.");
@@ -355,7 +355,7 @@ public class Menu(
             return;
         }
 
-        var revenue = restaurantService.CalculateRestaurantRevenue(restaurantId);
+        var revenue = await restaurantService.CalculateRestaurantRevenueAsync(restaurantId);
 
         Console.WriteLine($"\n=== Revenue for {restaurant.Name} ===\n");
         Console.WriteLine($"Restaurant ID: {restaurantId}");
@@ -367,7 +367,7 @@ public class Menu(
         Console.WriteLine();
     }
 
-    private void FindCustomersByPartySize()
+    private async Task FindCustomersByPartySizeAsync()
     {
         Console.WriteLine("\n=== Find Customers by Party Size (Stored Procedure) ===\n");
         Console.Write("Enter minimum party size: ");
@@ -381,7 +381,7 @@ public class Menu(
             return;
         }
 
-        var customers = customerService.FindCustomersByPartySize(minPartySize);
+        var customers = await customerService.FindCustomersByPartySizeAsync(minPartySize);
 
         Console.WriteLine($"\n=== Customers with Reservations Party Size > {minPartySize} ===\n");
 
@@ -409,7 +409,7 @@ public class Menu(
         Console.WriteLine();
     }
 
-    private void UseViews()
+    private async Task UseViewsAsync()
     {
         var exit = false;
 
@@ -431,25 +431,25 @@ public class Menu(
             switch (choice)
             {
                 case "1":
-                    ViewAllReservationDetails();
+                    await ViewAllReservationDetailsAsync();
                     break;
                 case "2":
-                    ViewReservationDetailsById();
+                    await ViewReservationDetailsByIdAsync();
                     break;
                 case "3":
-                    ViewReservationsByCustomerId();
+                    await ViewReservationsByCustomerIdAsync();
                     break;
                 case "4":
-                    ViewReservationsByRestaurantId();
+                    await ViewReservationsByRestaurantIdAsync();
                     break;
                 case "5":
-                    ViewAllEmployeeDetails();
+                    await ViewAllEmployeeDetailsAsync();
                     break;
                 case "6":
-                    ViewEmployeeDetailsById();
+                    await ViewEmployeeDetailsByIdAsync();
                     break;
                 case "7":
-                    ViewEmployeesByRestaurantId();
+                    await ViewEmployeesByRestaurantIdAsync();
                     break;
                 case "8":
                     exit = true;
@@ -461,11 +461,11 @@ public class Menu(
         }
     }
 
-    private void ViewAllReservationDetails()
+    private async Task ViewAllReservationDetailsAsync()
     {
         Console.WriteLine("\n=== All Reservation Details (from View) ===\n");
 
-        var reservations = reservationDetailsViewService.GetAll();
+        var reservations = await reservationDetailsViewService.GetAllAsync();
 
         if (reservations.Count == 0)
         {
@@ -491,7 +491,7 @@ public class Menu(
         Console.ReadKey();
     }
 
-    private void ViewReservationDetailsById()
+    private async Task ViewReservationDetailsByIdAsync()
     {
         Console.WriteLine("\n=== View Reservation Details by ID ===\n");
         Console.Write("Enter Reservation ID: ");
@@ -504,7 +504,7 @@ public class Menu(
             return;
         }
 
-        var reservation = reservationDetailsViewService.GetByReservationId(reservationId);
+        var reservation = await reservationDetailsViewService.GetByReservationIdAsync(reservationId);
 
         Console.WriteLine($"\n=== Reservation Details for ID {reservationId} ===\n");
 
@@ -535,7 +535,7 @@ public class Menu(
         Console.ReadKey();
     }
 
-    private void ViewReservationsByCustomerId()
+    private async Task ViewReservationsByCustomerIdAsync()
     {
         Console.WriteLine("\n=== View Reservations by Customer ID ===\n");
         Console.Write("Enter Customer ID: ");
@@ -548,7 +548,7 @@ public class Menu(
             return;
         }
 
-        var reservations = reservationDetailsViewService.GetByCustomerId(customerId);
+        var reservations = await reservationDetailsViewService.GetByCustomerIdAsync(customerId);
 
         Console.WriteLine($"\n=== Reservations for Customer ID {customerId} ===\n");
 
@@ -575,7 +575,7 @@ public class Menu(
         Console.ReadKey();
     }
 
-    private void ViewReservationsByRestaurantId()
+    private async Task ViewReservationsByRestaurantIdAsync()
     {
         Console.WriteLine("\n=== View Reservations by Restaurant ID ===\n");
         Console.Write("Enter Restaurant ID: ");
@@ -588,7 +588,7 @@ public class Menu(
             return;
         }
 
-        var reservations = reservationDetailsViewService.GetByRestaurantId(restaurantId);
+        var reservations = await reservationDetailsViewService.GetByRestaurantIdAsync(restaurantId);
 
         Console.WriteLine($"\n=== Reservations for Restaurant ID {restaurantId} ===\n");
 
@@ -616,11 +616,11 @@ public class Menu(
         Console.ReadKey();
     }
 
-    private void ViewAllEmployeeDetails()
+    private async Task ViewAllEmployeeDetailsAsync()
     {
         Console.WriteLine("\n=== All Employee Details (from View) ===\n");
 
-        var employees = employeeDetailsViewService.GetAll();
+        var employees = await employeeDetailsViewService.GetAllAsync();
 
         if (employees.Count == 0)
         {
@@ -645,7 +645,7 @@ public class Menu(
         Console.ReadKey();
     }
 
-    private void ViewEmployeeDetailsById()
+    private async Task ViewEmployeeDetailsByIdAsync()
     {
         Console.WriteLine("\n=== View Employee Details by ID ===\n");
         Console.Write("Enter Employee ID: ");
@@ -658,7 +658,7 @@ public class Menu(
             return;
         }
 
-        var employee = employeeDetailsViewService.GetByEmployeeId(employeeId);
+        var employee = await employeeDetailsViewService.GetByEmployeeIdAsync(employeeId);
 
         Console.WriteLine($"\n=== Employee Details for ID {employeeId} ===\n");
 
@@ -683,7 +683,7 @@ public class Menu(
         Console.ReadKey();
     }
 
-    private void ViewEmployeesByRestaurantId()
+    private async Task ViewEmployeesByRestaurantIdAsync()
     {
         Console.WriteLine("\n=== View Employees by Restaurant ID ===\n");
         Console.Write("Enter Restaurant ID: ");
@@ -696,7 +696,7 @@ public class Menu(
             return;
         }
 
-        var employees = employeeDetailsViewService.GetByRestaurantId(restaurantId);
+        var employees = await employeeDetailsViewService.GetByRestaurantIdAsync(restaurantId);
 
         Console.WriteLine($"\n=== Employees for Restaurant ID {restaurantId} ===\n");
 

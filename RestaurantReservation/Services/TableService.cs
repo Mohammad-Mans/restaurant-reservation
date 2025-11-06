@@ -5,29 +5,29 @@ namespace RestaurantReservation.Services;
 
 public class TableService(ITableRepository repository)
 {
-    public Table CreateTable(int restaurantId, int capacity)
+    public async Task<Table> CreateTableAsync(int restaurantId, int capacity)
     {
         var table = new Table
         {
             RestaurantId = restaurantId,
             Capacity = capacity
         };
-        return repository.Create(table);
+        return await repository.CreateAsync(table);
     }
 
-    public Table? UpdateTable(int id, int? restaurantId = null, int? capacity = null)
+    public async Task<Table?> UpdateTableAsync(int id, int? restaurantId = null, int? capacity = null)
     {
-        var table = repository.GetById(id);
+        var table = await repository.GetByIdAsync(id);
         if (table == null) return null;
 
         if (restaurantId.HasValue) table.RestaurantId = restaurantId.Value;
         if (capacity.HasValue) table.Capacity = capacity.Value;
 
-        return repository.Update(table);
+        return await repository.UpdateAsync(table);
     }
 
-    public bool DeleteTable(int id)
+    public async Task<bool> DeleteTableAsync(int id)
     {
-        return repository.Delete(id);
+        return await repository.DeleteAsync(id);
     }
 }

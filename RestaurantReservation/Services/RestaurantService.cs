@@ -5,7 +5,7 @@ namespace RestaurantReservation.Services;
 
 public class RestaurantService(IRestaurantRepository repository)
 {
-    public Restaurant CreateRestaurant(string name, string? address = null, string? phoneNumber = null,
+    public async Task<Restaurant> CreateRestaurantAsync(string name, string? address = null, string? phoneNumber = null,
         string? openingHours = null)
     {
         var restaurant = new Restaurant
@@ -15,13 +15,13 @@ public class RestaurantService(IRestaurantRepository repository)
             PhoneNumber = phoneNumber,
             OpeningHours = openingHours
         };
-        return repository.Create(restaurant);
+        return await repository.CreateAsync(restaurant);
     }
 
-    public Restaurant? UpdateRestaurant(int id, string? name = null, string? address = null, string? phoneNumber = null,
+    public async Task<Restaurant?> UpdateRestaurantAsync(int id, string? name = null, string? address = null, string? phoneNumber = null,
         string? openingHours = null)
     {
-        var restaurant = repository.GetById(id);
+        var restaurant = await repository.GetByIdAsync(id);
         if (restaurant == null) return null;
 
         if (name != null) restaurant.Name = name;
@@ -29,21 +29,21 @@ public class RestaurantService(IRestaurantRepository repository)
         if (phoneNumber != null) restaurant.PhoneNumber = phoneNumber;
         if (openingHours != null) restaurant.OpeningHours = openingHours;
 
-        return repository.Update(restaurant);
+        return await repository.UpdateAsync(restaurant);
     }
 
-    public bool DeleteRestaurant(int id)
+    public async Task<bool> DeleteRestaurantAsync(int id)
     {
-        return repository.Delete(id);
+        return await repository.DeleteAsync(id);
     }
 
-    public Restaurant? GetRestaurantById(int id)
+    public async Task<Restaurant?> GetRestaurantByIdAsync(int id)
     {
-        return repository.GetById(id);
+        return await repository.GetByIdAsync(id);
     }
 
-    public decimal CalculateRestaurantRevenue(int restaurantId)
+    public async Task<decimal> CalculateRestaurantRevenueAsync(int restaurantId)
     {
-        return repository.CalculateRestaurantRevenue(restaurantId);
+        return await repository.CalculateRestaurantRevenueAsync(restaurantId);
     }
 }

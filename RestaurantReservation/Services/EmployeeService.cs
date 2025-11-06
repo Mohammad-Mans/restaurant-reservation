@@ -5,7 +5,7 @@ namespace RestaurantReservation.Services;
 
 public class EmployeeService(IEmployeeRepository repository)
 {
-    public Employee CreateEmployee(int restaurantId, string firstName, string lastName, string position)
+    public async Task<Employee> CreateEmployeeAsync(int restaurantId, string firstName, string lastName, string position)
     {
         var employee = new Employee
         {
@@ -14,13 +14,13 @@ public class EmployeeService(IEmployeeRepository repository)
             LastName = lastName,
             Position = position
         };
-        return repository.Create(employee);
+        return await repository.CreateAsync(employee);
     }
 
-    public Employee? UpdateEmployee(int id, int? restaurantId = null, string? firstName = null, string? lastName = null,
+    public async Task<Employee?> UpdateEmployeeAsync(int id, int? restaurantId = null, string? firstName = null, string? lastName = null,
         string? position = null)
     {
-        var employee = repository.GetById(id);
+        var employee = await repository.GetByIdAsync(id);
         if (employee == null) return null;
 
         if (restaurantId.HasValue) employee.RestaurantId = restaurantId.Value;
@@ -28,16 +28,16 @@ public class EmployeeService(IEmployeeRepository repository)
         if (lastName != null) employee.LastName = lastName;
         if (position != null) employee.Position = position;
 
-        return repository.Update(employee);
+        return await repository.UpdateAsync(employee);
     }
 
-    public bool DeleteEmployee(int id)
+    public async Task<bool> DeleteEmployeeAsync(int id)
     {
-        return repository.Delete(id);
+        return await repository.DeleteAsync(id);
     }
 
-    public List<Employee> ListManagers()
+    public async Task<List<Employee>> ListManagersAsync()
     {
-        return repository.ListManagers();
+        return await repository.ListManagersAsync();
     }
 }

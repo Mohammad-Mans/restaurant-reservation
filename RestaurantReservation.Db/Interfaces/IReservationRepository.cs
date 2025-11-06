@@ -4,10 +4,10 @@ namespace RestaurantReservation.Db.Interfaces;
 
 public interface IReservationRepository
 {
-    Reservation Create(Reservation reservation);
-    Reservation? GetById(int id);
-    List<Reservation> GetAll();
-    Reservation? Update(Reservation reservation);
-    bool Delete(int id);
-    List<Reservation> GetByCustomerId(int customerId);
+    Task<Reservation> CreateAsync(Reservation reservation);
+    Task<Reservation?> GetByIdAsync(int id);
+    Task<List<Reservation>> GetAllAsync();
+    Task<Reservation?> UpdateAsync(Reservation reservation);
+    Task<bool> DeleteAsync(int id);
+    Task<List<Reservation>> GetByCustomerIdAsync(int customerId);
 }

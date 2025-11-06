@@ -5,18 +5,18 @@ namespace RestaurantReservation.Services;
 
 public class EmployeeDetailsViewService(IEmployeeDetailsViewRepository repository)
 {
-    public List<EmployeeDetailsView> GetAll()
+    public async Task<List<EmployeeDetailsView>> GetAllAsync()
     {
-        return repository.GetAll();
+        return await repository.GetAllAsync();
     }
 
-    public EmployeeDetailsView? GetByEmployeeId(int employeeId)
+    public async Task<EmployeeDetailsView?> GetByEmployeeIdAsync(int employeeId)
     {
-        return repository.GetByEmployeeId(employeeId);
+        return await repository.GetByEmployeeIdAsync(employeeId);
     }
 
-    public List<EmployeeDetailsView> GetByRestaurantId(int restaurantId)
+    public async Task<List<EmployeeDetailsView>> GetByRestaurantIdAsync(int restaurantId)
     {
-        return repository.GetByRestaurantId(restaurantId);
+        return await repository.GetByRestaurantIdAsync(restaurantId);
     }
 }

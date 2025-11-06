@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using RestaurantReservation.Db.Interfaces;
 using RestaurantReservation.Db.Models;
 
@@ -5,43 +6,43 @@ namespace RestaurantReservation.Db.Repositories;
 
 public class OrderItemRepository(RestaurantReservationDbContext context) : IOrderItemRepository
 {
-    public OrderItem Create(OrderItem orderItem)
+    public async Task<OrderItem> CreateAsync(OrderItem orderItem)
     {
         context.OrderItems.Add(orderItem);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
         return orderItem;
     }
 
-    public OrderItem? GetById(int id)
+    public async Task<OrderItem?> GetByIdAsync(int id)
     {
-        return context.OrderItems.Find(id);
+        return await context.OrderItems.FindAsync(id);
     }
 
-    public List<OrderItem> GetAll()
+    public async Task<List<OrderItem>> GetAllAsync()
     {
-        return context.OrderItems.ToList();
+        return await context.OrderItems.ToListAsync();
     }
 
-    public OrderItem? Update(OrderItem orderItem)
+    public async Task<OrderItem?> UpdateAsync(OrderItem orderItem)
     {
-        var existing = context.OrderItems.Find(orderItem.OrderItemId);
+        var existing = await context.OrderItems.FindAsync(orderItem.OrderItemId);
         if (existing == null) return null;
 
         existing.OrderId = orderItem.OrderId;
         existing.ItemId = orderItem.ItemId;
         existing.Quantity = orderItem.Quantity;
 
-        context.SaveChanges();
+        await context.SaveChangesAsync();
         return existing;
     }
 
-    public bool Delete(int id)
+    public async Task<bool> DeleteAsync(int id)
     {
-        var orderItem = context.OrderItems.Find(id);
+        var orderItem = await context.OrderItems.FindAsync(id);
         if (orderItem == null) return false;
 
         context.OrderItems.Remove(orderItem);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
         return true;
     }
 }

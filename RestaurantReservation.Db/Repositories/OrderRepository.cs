@@ -6,26 +6,26 @@ namespace RestaurantReservation.Db.Repositories;
 
 public class OrderRepository(RestaurantReservationDbContext context) : IOrderRepository
 {
-    public Order Create(Order order)
+    public async Task<Order> CreateAsync(Order order)
     {
         context.Orders.Add(order);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
         return order;
     }
 
-    public Order? GetById(int id)
+    public async Task<Order?> GetByIdAsync(int id)
     {
-        return context.Orders.Find(id);
+        return await context.Orders.FindAsync(id);
     }
 
-    public List<Order> GetAll()
+    public async Task<List<Order>> GetAllAsync()
     {
-        return context.Orders.ToList();
+        return await context.Orders.ToListAsync();
     }
 
-    public Order? Update(Order order)
+    public async Task<Order?> UpdateAsync(Order order)
     {
-        var existing = context.Orders.Find(order.OrderId);
+        var existing = await context.Orders.FindAsync(order.OrderId);
         if (existing == null) return null;
 
         existing.ReservationId = order.ReservationId;
@@ -33,36 +33,36 @@ public class OrderRepository(RestaurantReservationDbContext context) : IOrderRep
         existing.OrderDate = order.OrderDate;
         existing.TotalAmount = order.TotalAmount;
 
-        context.SaveChanges();
+        await context.SaveChangesAsync();
         return existing;
     }
 
-    public bool Delete(int id)
+    public async Task<bool> DeleteAsync(int id)
     {
-        var order = context.Orders.Find(id);
+        var order = await context.Orders.FindAsync(id);
         if (order == null) return false;
 
         context.Orders.Remove(order);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
         return true;
     }
 
-    public List<Order> GetByReservationId(int reservationId)
+    public async Task<List<Order>> GetByReservationIdAsync(int reservationId)
     {
-        return context.Orders
+        return await context.Orders
             .Where(o => o.ReservationId == reservationId)
             .Include(o => o.OrderItems)
                 .ThenInclude(oi => oi.Item)
-            .ToList();
+            .ToListAsync();
     }
 
-    public decimal? GetAverageOrderAmountByEmployeeId(int employeeId)
+    public async Task<decimal?> GetAverageOrderAmountByEmployeeIdAsync(int employeeId)
     {
         var employeeOrders = context.Orders.Where(o => o.EmployeeId == employeeId);
 
-        if (!employeeOrders.Any())
+        if (!await employeeOrders.AnyAsync())
             return null;
 
-        return employeeOrders.Average(o => o.TotalAmount);
+        return await employeeOrders.AverageAsync(o => o.TotalAmount);
     }
 }

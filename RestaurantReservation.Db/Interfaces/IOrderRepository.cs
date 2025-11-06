@@ -4,11 +4,11 @@ namespace RestaurantReservation.Db.Interfaces;
 
 public interface IOrderRepository
 {
-    Order Create(Order order);
-    Order? GetById(int id);
-    List<Order> GetAll();
-    Order? Update(Order order);
-    bool Delete(int id);
-    List<Order> GetByReservationId(int reservationId);
-    decimal? GetAverageOrderAmountByEmployeeId(int employeeId);
+    Task<Order> CreateAsync(Order order);
+    Task<Order?> GetByIdAsync(int id);
+    Task<List<Order>> GetAllAsync();
+    Task<Order?> UpdateAsync(Order order);
+    Task<bool> DeleteAsync(int id);
+    Task<List<Order>> GetByReservationIdAsync(int reservationId);
+    Task<decimal?> GetAverageOrderAmountByEmployeeIdAsync(int employeeId);
 }

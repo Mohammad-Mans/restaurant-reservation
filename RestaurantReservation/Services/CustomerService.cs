@@ -5,7 +5,7 @@ namespace RestaurantReservation.Services;
 
 public class CustomerService(ICustomerRepository repository)
 {
-    public Customer CreateCustomer(string firstName, string lastName, string? email = null, string? phoneNumber = null)
+    public async Task<Customer> CreateCustomerAsync(string firstName, string lastName, string? email = null, string? phoneNumber = null)
     {
         var customer = new Customer
         {
@@ -14,13 +14,13 @@ public class CustomerService(ICustomerRepository repository)
             Email = email,
             PhoneNumber = phoneNumber
         };
-        return repository.Create(customer);
+        return await repository.CreateAsync(customer);
     }
 
-    public Customer? UpdateCustomer(int id, string? firstName = null, string? lastName = null, string? email = null,
+    public async Task<Customer?> UpdateCustomerAsync(int id, string? firstName = null, string? lastName = null, string? email = null,
         string? phoneNumber = null)
     {
-        var customer = repository.GetById(id);
+        var customer = await repository.GetByIdAsync(id);
         if (customer == null) return null;
 
         if (firstName != null) customer.FirstName = firstName;
@@ -28,16 +28,16 @@ public class CustomerService(ICustomerRepository repository)
         if (email != null) customer.Email = email;
         if (phoneNumber != null) customer.PhoneNumber = phoneNumber;
 
-        return repository.Update(customer);
+        return await repository.UpdateAsync(customer);
     }
 
-    public bool DeleteCustomer(int id)
+    public async Task<bool> DeleteCustomerAsync(int id)
     {
-        return repository.Delete(id);
+        return await repository.DeleteAsync(id);
     }
 
-    public List<Customer> FindCustomersByPartySize(int minPartySize)
+    public async Task<List<Customer>> FindCustomersByPartySizeAsync(int minPartySize)
     {
-        return repository.FindCustomersByPartySize(minPartySize);
+        return await repository.FindCustomersByPartySizeAsync(minPartySize);
     }
 }

@@ -5,7 +5,7 @@ namespace RestaurantReservation.Services;
 
 public class MenuItemService(IMenuItemRepository repository)
 {
-    public MenuItem CreateMenuItem(int restaurantId, string name, decimal price, string? description = null)
+    public async Task<MenuItem> CreateMenuItemAsync(int restaurantId, string name, decimal price, string? description = null)
     {
         var menuItem = new MenuItem
         {
@@ -14,13 +14,13 @@ public class MenuItemService(IMenuItemRepository repository)
             Description = description,
             Price = price
         };
-        return repository.Create(menuItem);
+        return await repository.CreateAsync(menuItem);
     }
 
-    public MenuItem? UpdateMenuItem(int id, int? restaurantId = null, string? name = null, string? description = null,
+    public async Task<MenuItem?> UpdateMenuItemAsync(int id, int? restaurantId = null, string? name = null, string? description = null,
         decimal? price = null)
     {
-        var menuItem = repository.GetById(id);
+        var menuItem = await repository.GetByIdAsync(id);
         if (menuItem == null) return null;
 
         if (restaurantId.HasValue) menuItem.RestaurantId = restaurantId.Value;
@@ -28,16 +28,16 @@ public class MenuItemService(IMenuItemRepository repository)
         if (description != null) menuItem.Description = description;
         if (price.HasValue) menuItem.Price = price.Value;
 
-        return repository.Update(menuItem);
+        return await repository.UpdateAsync(menuItem);
     }
 
-    public bool DeleteMenuItem(int id)
+    public async Task<bool> DeleteMenuItemAsync(int id)
     {
-        return repository.Delete(id);
+        return await repository.DeleteAsync(id);
     }
 
-    public List<MenuItem> ListOrderedMenuItems(int reservationId)
+    public async Task<List<MenuItem>> ListOrderedMenuItemsAsync(int reservationId)
     {
-        return repository.GetByReservationId(reservationId);
+        return await repository.GetByReservationIdAsync(reservationId);
     }
 }

@@ -4,10 +4,10 @@ namespace RestaurantReservation.Db.Interfaces;
 
 public interface IEmployeeRepository
 {
-    Employee Create(Employee employee);
-    Employee? GetById(int id);
-    List<Employee> GetAll();
-    Employee? Update(Employee employee);
-    bool Delete(int id);
-    List<Employee> ListManagers();
+    Task<Employee> CreateAsync(Employee employee);
+    Task<Employee?> GetByIdAsync(int id);
+    Task<List<Employee>> GetAllAsync();
+    Task<Employee?> UpdateAsync(Employee employee);
+    Task<bool> DeleteAsync(int id);
+    Task<List<Employee>> ListManagersAsync();
 }

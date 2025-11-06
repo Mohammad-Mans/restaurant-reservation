@@ -4,9 +4,9 @@ namespace RestaurantReservation.Db.Interfaces;
 
 public interface ITableRepository
 {
-    Table Create(Table table);
-    Table? GetById(int id);
-    List<Table> GetAll();
-    Table? Update(Table table);
-    bool Delete(int id);
+    Task<Table> CreateAsync(Table table);
+    Task<Table?> GetByIdAsync(int id);
+    Task<List<Table>> GetAllAsync();
+    Task<Table?> UpdateAsync(Table table);
+    Task<bool> DeleteAsync(int id);
 }

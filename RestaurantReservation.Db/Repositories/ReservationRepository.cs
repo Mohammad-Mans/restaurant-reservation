@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using RestaurantReservation.Db.Interfaces;
 using RestaurantReservation.Db.Models;
 
@@ -5,26 +6,26 @@ namespace RestaurantReservation.Db.Repositories;
 
 public class ReservationRepository(RestaurantReservationDbContext context) : IReservationRepository
 {
-    public Reservation Create(Reservation reservation)
+    public async Task<Reservation> CreateAsync(Reservation reservation)
     {
         context.Reservations.Add(reservation);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
         return reservation;
     }
 
-    public Reservation? GetById(int id)
+    public async Task<Reservation?> GetByIdAsync(int id)
     {
-        return context.Reservations.Find(id);
+        return await context.Reservations.FindAsync(id);
     }
 
-    public List<Reservation> GetAll()
+    public async Task<List<Reservation>> GetAllAsync()
     {
-        return context.Reservations.ToList();
+        return await context.Reservations.ToListAsync();
     }
 
-    public Reservation? Update(Reservation reservation)
+    public async Task<Reservation?> UpdateAsync(Reservation reservation)
     {
-        var existing = context.Reservations.Find(reservation.ReservationId);
+        var existing = await context.Reservations.FindAsync(reservation.ReservationId);
         if (existing == null) return null;
 
         existing.CustomerId = reservation.CustomerId;
@@ -33,22 +34,22 @@ public class ReservationRepository(RestaurantReservationDbContext context) : IRe
         existing.ReservationDate = reservation.ReservationDate;
         existing.PartySize = reservation.PartySize;
 
-        context.SaveChanges();
+        await context.SaveChangesAsync();
         return existing;
     }
 
-    public bool Delete(int id)
+    public async Task<bool> DeleteAsync(int id)
     {
-        var reservation = context.Reservations.Find(id);
+        var reservation = await context.Reservations.FindAsync(id);
         if (reservation == null) return false;
 
         context.Reservations.Remove(reservation);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
         return true;
     }
 
-    public List<Reservation> GetByCustomerId(int customerId)
+    public async Task<List<Reservation>> GetByCustomerIdAsync(int customerId)
     {
-        return context.Reservations.Where(r => r.CustomerId == customerId).ToList();
+        return await context.Reservations.Where(r => r.CustomerId == customerId).ToListAsync();
     }
 }

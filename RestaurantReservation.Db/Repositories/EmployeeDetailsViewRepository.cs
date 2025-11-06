@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using RestaurantReservation.Db.Interfaces;
 using RestaurantReservation.Db.Models;
 
@@ -5,21 +6,21 @@ namespace RestaurantReservation.Db.Repositories;
 
 public class EmployeeDetailsViewRepository(RestaurantReservationDbContext context) : IEmployeeDetailsViewRepository
 {
-    public List<EmployeeDetailsView> GetAll()
+    public async Task<List<EmployeeDetailsView>> GetAllAsync()
     {
-        return context.EmployeeDetailsView.ToList();
+        return await context.EmployeeDetailsView.ToListAsync();
     }
 
-    public EmployeeDetailsView? GetByEmployeeId(int employeeId)
+    public async Task<EmployeeDetailsView?> GetByEmployeeIdAsync(int employeeId)
     {
-        return context.EmployeeDetailsView
-            .FirstOrDefault(e => e.EmployeeId == employeeId);
+        return await context.EmployeeDetailsView
+            .FirstOrDefaultAsync(e => e.EmployeeId == employeeId);
     }
 
-    public List<EmployeeDetailsView> GetByRestaurantId(int restaurantId)
+    public async Task<List<EmployeeDetailsView>> GetByRestaurantIdAsync(int restaurantId)
     {
-        return context.EmployeeDetailsView
+        return await context.EmployeeDetailsView
             .Where(e => e.RestaurantId == restaurantId)
-            .ToList();
+            .ToListAsync();
     }
 }

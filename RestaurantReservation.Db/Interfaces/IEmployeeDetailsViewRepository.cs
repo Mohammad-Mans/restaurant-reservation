@@ -4,7 +4,7 @@ namespace RestaurantReservation.Db.Interfaces;
 
 public interface IEmployeeDetailsViewRepository
 {
-    List<EmployeeDetailsView> GetAll();
-    EmployeeDetailsView? GetByEmployeeId(int employeeId);
-    List<EmployeeDetailsView> GetByRestaurantId(int restaurantId);
+    Task<List<EmployeeDetailsView>> GetAllAsync();
+    Task<EmployeeDetailsView?> GetByEmployeeIdAsync(int employeeId);
+    Task<List<EmployeeDetailsView>> GetByRestaurantIdAsync(int restaurantId);
 }

@@ -5,7 +5,7 @@ namespace RestaurantReservation.Services;
 
 public class OrderService(IOrderRepository repository)
 {
-    public Order CreateOrder(int reservationId, int employeeId, DateTime orderDate, decimal totalAmount)
+    public async Task<Order> CreateOrderAsync(int reservationId, int employeeId, DateTime orderDate, decimal totalAmount)
     {
         var order = new Order
         {
@@ -14,13 +14,13 @@ public class OrderService(IOrderRepository repository)
             OrderDate = orderDate,
             TotalAmount = totalAmount
         };
-        return repository.Create(order);
+        return await repository.CreateAsync(order);
     }
 
-    public Order? UpdateOrder(int id, int? reservationId = null, int? employeeId = null, DateTime? orderDate = null,
+    public async Task<Order?> UpdateOrderAsync(int id, int? reservationId = null, int? employeeId = null, DateTime? orderDate = null,
         decimal? totalAmount = null)
     {
-        var order = repository.GetById(id);
+        var order = await repository.GetByIdAsync(id);
         if (order == null) return null;
 
         if (reservationId.HasValue) order.ReservationId = reservationId.Value;
@@ -28,21 +28,21 @@ public class OrderService(IOrderRepository repository)
         if (orderDate.HasValue) order.OrderDate = orderDate.Value;
         if (totalAmount.HasValue) order.TotalAmount = totalAmount.Value;
 
-        return repository.Update(order);
+        return await repository.UpdateAsync(order);
     }
 
-    public bool DeleteOrder(int id)
+    public async Task<bool> DeleteOrderAsync(int id)
     {
-        return repository.Delete(id);
+        return await repository.DeleteAsync(id);
     }
 
-    public List<Order> ListOrdersAndMenuItems(int reservationId)
+    public async Task<List<Order>> ListOrdersAndMenuItemsAsync(int reservationId)
     {
-        return repository.GetByReservationId(reservationId);
+        return await repository.GetByReservationIdAsync(reservationId);
     }
 
-    public decimal? CalculateAverageOrderAmount(int employeeId)
+    public async Task<decimal?> CalculateAverageOrderAmountAsync(int employeeId)
     {
-        return repository.GetAverageOrderAmountByEmployeeId(employeeId);
+        return await repository.GetAverageOrderAmountByEmployeeIdAsync(employeeId);
     }
 }

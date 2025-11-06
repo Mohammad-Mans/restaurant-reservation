@@ -6,26 +6,26 @@ namespace RestaurantReservation.Db.Repositories;
 
 public class CustomerRepository(RestaurantReservationDbContext context) : ICustomerRepository
 {
-    public Customer Create(Customer customer)
+    public async Task<Customer> CreateAsync(Customer customer)
     {
         context.Customers.Add(customer);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
         return customer;
     }
 
-    public Customer? GetById(int id)
+    public async Task<Customer?> GetByIdAsync(int id)
     {
-        return context.Customers.Find(id);
+        return await context.Customers.FindAsync(id);
     }
 
-    public List<Customer> GetAll()
+    public async Task<List<Customer>> GetAllAsync()
     {
-        return context.Customers.ToList();
+        return await context.Customers.ToListAsync();
     }
 
-    public Customer? Update(Customer customer)
+    public async Task<Customer?> UpdateAsync(Customer customer)
     {
-        var existing = context.Customers.Find(customer.CustomerId);
+        var existing = await context.Customers.FindAsync(customer.CustomerId);
         if (existing == null) return null;
 
         existing.FirstName = customer.FirstName;
@@ -33,24 +33,24 @@ public class CustomerRepository(RestaurantReservationDbContext context) : ICusto
         existing.Email = customer.Email;
         existing.PhoneNumber = customer.PhoneNumber;
 
-        context.SaveChanges();
+        await context.SaveChangesAsync();
         return existing;
     }
 
-    public bool Delete(int id)
+    public async Task<bool> DeleteAsync(int id)
     {
-        var customer = context.Customers.Find(id);
+        var customer = await context.Customers.FindAsync(id);
         if (customer == null) return false;
 
         context.Customers.Remove(customer);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
         return true;
     }
 
-    public List<Customer> FindCustomersByPartySize(int minPartySize)
+    public async Task<List<Customer>> FindCustomersByPartySizeAsync(int minPartySize)
     {
-        return context.Customers
+        return await context.Customers
             .FromSqlRaw("EXEC dbo.sp_FindCustomersByPartySize {0}", minPartySize)
-            .ToList();
+            .ToListAsync();
     }
 }

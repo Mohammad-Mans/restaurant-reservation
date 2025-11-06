@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using RestaurantReservation.Db.Interfaces;
 using RestaurantReservation.Db.Models;
 
@@ -5,26 +6,26 @@ namespace RestaurantReservation.Db.Repositories;
 
 public class EmployeeRepository(RestaurantReservationDbContext context) : IEmployeeRepository
 {
-    public Employee Create(Employee employee)
+    public async Task<Employee> CreateAsync(Employee employee)
     {
         context.Employees.Add(employee);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
         return employee;
     }
 
-    public Employee? GetById(int id)
+    public async Task<Employee?> GetByIdAsync(int id)
     {
-        return context.Employees.Find(id);
+        return await context.Employees.FindAsync(id);
     }
 
-    public List<Employee> GetAll()
+    public async Task<List<Employee>> GetAllAsync()
     {
-        return context.Employees.ToList();
+        return await context.Employees.ToListAsync();
     }
 
-    public Employee? Update(Employee employee)
+    public async Task<Employee?> UpdateAsync(Employee employee)
     {
-        var existing = context.Employees.Find(employee.EmployeeId);
+        var existing = await context.Employees.FindAsync(employee.EmployeeId);
         if (existing == null) return null;
 
         existing.RestaurantId = employee.RestaurantId;
@@ -32,24 +33,24 @@ public class EmployeeRepository(RestaurantReservationDbContext context) : IEmplo
         existing.LastName = employee.LastName;
         existing.Position = employee.Position;
 
-        context.SaveChanges();
+        await context.SaveChangesAsync();
         return existing;
     }
 
-    public bool Delete(int id)
+    public async Task<bool> DeleteAsync(int id)
     {
-        var employee = context.Employees.Find(id);
+        var employee = await context.Employees.FindAsync(id);
         if (employee == null) return false;
 
         context.Employees.Remove(employee);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
         return true;
     }
 
-    public List<Employee> ListManagers()
+    public async Task<List<Employee>> ListManagersAsync()
     {
-        return context.Employees
+        return await context.Employees
             .Where(e => e.Position.ToLower() == "manager".ToLower())
-            .ToList();
+            .ToListAsync();
     }
 }

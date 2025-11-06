@@ -6,26 +6,26 @@ namespace RestaurantReservation.Db.Repositories;
 
 public class RestaurantRepository(RestaurantReservationDbContext context) : IRestaurantRepository
 {
-    public Restaurant Create(Restaurant restaurant)
+    public async Task<Restaurant> CreateAsync(Restaurant restaurant)
     {
         context.Restaurants.Add(restaurant);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
         return restaurant;
     }
 
-    public Restaurant? GetById(int id)
+    public async Task<Restaurant?> GetByIdAsync(int id)
     {
-        return context.Restaurants.Find(id);
+        return await context.Restaurants.FindAsync(id);
     }
 
-    public List<Restaurant> GetAll()
+    public async Task<List<Restaurant>> GetAllAsync()
     {
-        return context.Restaurants.ToList();
+        return await context.Restaurants.ToListAsync();
     }
 
-    public Restaurant? Update(Restaurant restaurant)
+    public async Task<Restaurant?> UpdateAsync(Restaurant restaurant)
     {
-        var existing = context.Restaurants.Find(restaurant.RestaurantId);
+        var existing = await context.Restaurants.FindAsync(restaurant.RestaurantId);
         if (existing == null) return null;
 
         existing.Name = restaurant.Name;
@@ -33,24 +33,24 @@ public class RestaurantRepository(RestaurantReservationDbContext context) : IRes
         existing.PhoneNumber = restaurant.PhoneNumber;
         existing.OpeningHours = restaurant.OpeningHours;
 
-        context.SaveChanges();
+        await context.SaveChangesAsync();
         return existing;
     }
 
-    public bool Delete(int id)
+    public async Task<bool> DeleteAsync(int id)
     {
-        var restaurant = context.Restaurants.Find(id);
+        var restaurant = await context.Restaurants.FindAsync(id);
         if (restaurant == null) return false;
 
         context.Restaurants.Remove(restaurant);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
         return true;
     }
 
-    public decimal CalculateRestaurantRevenue(int restaurantId)
+    public async Task<decimal> CalculateRestaurantRevenueAsync(int restaurantId)
     {
-        return context.Database
+        return await context.Database
             .SqlQueryRaw<decimal>("SELECT dbo.CalculateRestaurantRevenue({0}) AS Value", restaurantId)
-            .FirstOrDefault();
+            .FirstOrDefaultAsync();
     }
 }

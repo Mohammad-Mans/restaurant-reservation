@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using RestaurantReservation.Db.Interfaces;
 using RestaurantReservation.Db.Models;
 
@@ -5,42 +6,42 @@ namespace RestaurantReservation.Db.Repositories;
 
 public class TableRepository(RestaurantReservationDbContext context) : ITableRepository
 {
-    public Table Create(Table table)
+    public async Task<Table> CreateAsync(Table table)
     {
         context.Tables.Add(table);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
         return table;
     }
 
-    public Table? GetById(int id)
+    public async Task<Table?> GetByIdAsync(int id)
     {
-        return context.Tables.Find(id);
+        return await context.Tables.FindAsync(id);
     }
 
-    public List<Table> GetAll()
+    public async Task<List<Table>> GetAllAsync()
     {
-        return context.Tables.ToList();
+        return await context.Tables.ToListAsync();
     }
 
-    public Table? Update(Table table)
+    public async Task<Table?> UpdateAsync(Table table)
     {
-        var existing = context.Tables.Find(table.TableId);
+        var existing = await context.Tables.FindAsync(table.TableId);
         if (existing == null) return null;
 
         existing.RestaurantId = table.RestaurantId;
         existing.Capacity = table.Capacity;
 
-        context.SaveChanges();
+        await context.SaveChangesAsync();
         return existing;
     }
 
-    public bool Delete(int id)
+    public async Task<bool> DeleteAsync(int id)
     {
-        var table = context.Tables.Find(id);
+        var table = await context.Tables.FindAsync(id);
         if (table == null) return false;
 
         context.Tables.Remove(table);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
         return true;
     }
 }
