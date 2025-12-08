@@ -1,4 +1,5 @@
-﻿using RestaurantReservation.Db;
+﻿using Microsoft.EntityFrameworkCore;
+using RestaurantReservation.Db;
 using RestaurantReservation.Db.Repositories;
 using RestaurantReservation.Services;
 using RestaurantReservation.UI;
@@ -9,7 +10,10 @@ static async Task MainAsync()
 {
     Console.WriteLine("=== Restaurant Reservation System ===\n");
 
-    using var context = new RestaurantReservationDbContext();
+    var optionsBuilder = new DbContextOptionsBuilder<RestaurantReservationDbContext>();
+    optionsBuilder.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=RestaurantReservationCore;Integrated Security=True;TrustServerCertificate=True");
+
+    using var context = new RestaurantReservationDbContext(optionsBuilder.Options);
 
     var restaurantRepository = new RestaurantRepository(context);
     var customerRepository = new CustomerRepository(context);
