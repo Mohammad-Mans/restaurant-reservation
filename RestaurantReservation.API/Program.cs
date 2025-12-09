@@ -16,6 +16,9 @@ builder.Services.AddDbContext<RestaurantReservationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
+builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IMenuItemRepository, MenuItemRepository>();
 
 var app = builder.Build();
 
@@ -130,5 +133,60 @@ app.MapDelete("/api/reservations/{id:int}", async (int id, IReservationRepositor
     .Produces(StatusCodes.Status404NotFound)
     .WithTags(ApiTags.Reservations);
 
+app.MapGet("/api/employees/managers", async (IEmployeeRepository repo) =>
+    {
+        var managers = await repo.ListManagersAsync();
+        var managersDtos = managers.Select(manager => manager.ToDto()).ToList();
+        return Results.Ok(managersDtos);
+    })
+    .Produces<List<EmployeeResponseDto>>()
+    .WithTags(ApiTags.Employees);
+
+app.MapGet("/api/reservations/customer/{customerId:int}", async (int customerId, IReservationRepository repo) =>
+    {
+        var reservations = await repo.GetByCustomerIdAsync(customerId);
+        var reservationDtos = reservations.Select(reservation => reservation.ToDto()).ToList();
+        return Results.Ok(reservationDtos);
+    })
+    .Produces<List<ReservationResponseDto>>()
+    .WithTags(ApiTags.Reservations);
+
+app.MapGet("/api/reservations/{reservationId:int}/orders", async (int reservationId, IOrderRepository repo) =>
+    {
+        var orders = await repo.GetByReservationIdAsync(reservationId);
+        if (orders.Count == 0)
+            return Results.NotFound();
+
+        var ordersDtos = orders.Select(order => order.ToDto()).ToList();
+        return Results.Ok(ordersDtos);
+    })
+    .Produces<List<OrderResponseDto>>()
+    .Produces(StatusCodes.Status404NotFound)
+    .WithTags(ApiTags.Reservations);
+
+app.MapGet("/api/reservations/{reservationId:int}/menu-items", async (int reservationId, IMenuItemRepository repo) =>
+    {
+        var menuItems = await repo.GetByReservationIdAsync(reservationId);
+        if (menuItems.Count == 0)
+            return Results.NotFound();
+
+        var menuItemsDtos = menuItems.Select(menuItem => menuItem.ToDto()).ToList();
+        return Results.Ok(menuItemsDtos);
+    })
+    .Produces<List<MenuItemResponseDto>>()
+    .Produces(StatusCodes.Status404NotFound)
+    .WithTags(ApiTags.Reservations);
+
+app.MapGet("/api/employees/{employeeId:int}/average-order-amount", async (int employeeId, IOrderRepository repo) =>
+    {
+        var averageAmount = await repo.GetAverageOrderAmountByEmployeeIdAsync(employeeId);
+        var response = new AverageOrderAmountResponseDto(employeeId, averageAmount);
+        return averageAmount.HasValue
+            ? Results.Ok(response)
+            : Results.NotFound(response);
+    })
+    .Produces<AverageOrderAmountResponseDto>()
+    .Produces<AverageOrderAmountResponseDto>(StatusCodes.Status404NotFound)
+    .WithTags(ApiTags.Employees);
 
 app.Run();
