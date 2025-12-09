@@ -53,4 +53,10 @@ public class EmployeeRepository(RestaurantReservationDbContext context) : IEmplo
             .Where(e => e.Position.ToLower() == "manager".ToLower())
             .ToListAsync();
     }
+
+    public async Task<Employee?> GetByUsernameAsync(string username)
+    {
+        return await context.Employees
+            .FirstOrDefaultAsync(e => e.Username == username);
+    }
 }

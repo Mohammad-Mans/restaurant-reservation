@@ -20,6 +20,7 @@ builder.Services.AddDbContext<RestaurantReservationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IMenuItemRepository, MenuItemRepository>();
@@ -220,5 +221,47 @@ app.MapGet("/api/employees/{employeeId:int}/average-order-amount", async (int em
     .Produces<AverageOrderAmountResponseDto>()
     .Produces<AverageOrderAmountResponseDto>(StatusCodes.Status404NotFound)
     .WithTags(ApiTags.Employees);
+
+app.MapPost("/api/auth/customer/login",
+        async (LoginDto login, ICustomerRepository customerRepo, JwtTokenGenerator tokenGenerator) =>
+        {
+            var customer = await customerRepo.GetByUsernameAsync(login.Username);
+
+            if (customer == null || string.IsNullOrEmpty(customer.PasswordHash))
+                return Results.Unauthorized();
+
+            if (!BCrypt.Net.BCrypt.Verify(login.Password, customer.PasswordHash))
+                return Results.Unauthorized();
+
+            var token = tokenGenerator.GenerateToken(login.Username, customer.CustomerId, Roles.Customer);
+            var response = new LoginResponseDto(token, login.Username, Roles.Customer, customer.CustomerId);
+
+            return Results.Ok(response);
+        })
+    .Accepts<LoginDto>("application/json")
+    .Produces<LoginResponseDto>()
+    .Produces(StatusCodes.Status401Unauthorized)
+    .WithTags(ApiTags.Authentication);
+
+app.MapPost("/api/auth/employee/login",
+        async (LoginDto login, IEmployeeRepository employeeRepo, JwtTokenGenerator tokenGenerator) =>
+        {
+            var employee = await employeeRepo.GetByUsernameAsync(login.Username);
+
+            if (employee == null)
+                return Results.Unauthorized();
+
+            if (!BCrypt.Net.BCrypt.Verify(login.Password, employee.PasswordHash))
+                return Results.Unauthorized();
+
+            var token = tokenGenerator.GenerateToken(login.Username, employee.EmployeeId, Roles.Employee, employee.Position);
+            var response = new LoginResponseDto(token, login.Username, employee.Position, employee.EmployeeId);
+
+            return Results.Ok(response);
+        })
+    .Accepts<LoginDto>("application/json")
+    .Produces<LoginResponseDto>()
+    .Produces(StatusCodes.Status401Unauthorized)
+    .WithTags(ApiTags.Authentication);
 
 app.Run();

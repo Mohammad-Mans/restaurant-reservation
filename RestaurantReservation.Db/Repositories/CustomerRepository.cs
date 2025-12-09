@@ -80,4 +80,10 @@ public class CustomerRepository(RestaurantReservationDbContext context) : ICusto
 
         return await query.ToListAsync();
     }
+
+    public async Task<Customer?> GetByUsernameAsync(string username)
+    {
+        return await context.Customers
+            .FirstOrDefaultAsync(c => c.Username == username);
+    }
 }

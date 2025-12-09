@@ -11,4 +11,5 @@ public interface ICustomerRepository
     Task<bool> DeleteAsync(int id);
     Task<List<Customer>> FindCustomersByPartySizeAsync(int minPartySize);
     Task<List<Customer>> SearchAsync(string? firstName = null, string? lastName = null, string? email = null, string? phoneNumber = null);
+    Task<Customer?> GetByUsernameAsync(string username);
 }

@@ -10,4 +10,5 @@ public interface IEmployeeRepository
     Task<Employee?> UpdateAsync(Employee employee);
     Task<bool> DeleteAsync(int id);
     Task<List<Employee>> ListManagersAsync();
+    Task<Employee?> GetByUsernameAsync(string username);
 }
