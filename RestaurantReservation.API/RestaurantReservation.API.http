@@ -1,1 +1,9 @@
-@RestaurantReservation.API_HostAddress = http://localhost:5000
+@RestaurantReservation_API_Base = http://localhost:5000
+
+### Get all reservations
+GET {{RestaurantReservation_API_Base}}/api/reservations
+Accept: application/json
+
+### Get reservation by ID
+GET {{RestaurantReservation_API_Base}}/api/reservations/1
+Accept: application/json
