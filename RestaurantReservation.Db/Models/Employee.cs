@@ -7,6 +7,8 @@ public class Employee
     public string FirstName { get; set; } = null!;
     public string LastName { get; set; } = null!;
     public string Position { get; set; } = null!;
+    public string Username { get; set; } = null!;
+    public string PasswordHash { get; set; } = null!;
 
     public Restaurant Restaurant { get; set; } = null!;
     public ICollection<Order> Orders { get; set; } = new List<Order>();
