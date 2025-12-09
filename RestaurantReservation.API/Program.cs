@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -69,6 +70,7 @@ app.MapGet("/api/reservations", async (IReservationRepository repo) =>
         var reservationsDtos = reservations.Select(reservation => reservation.ToDto()).ToList();
         return Results.Ok(reservationsDtos);
     })
+    .RequireAuthorization(policy => policy.RequireRole(Roles.Employee))
     .Produces<List<ReservationResponseDto>>()
     .WithTags(ApiTags.Reservations);
 
@@ -77,12 +79,20 @@ app.MapGet("/api/reservations/{id:int}", async (int id, IReservationRepository r
         var reservation = await repo.GetByIdAsync(id);
         return reservation is not null ? Results.Ok(reservation.ToDto()) : Results.NotFound();
     })
+    .RequireAuthorization(policy => policy.RequireRole(Roles.Employee))
     .Produces<ReservationResponseDto>()
     .Produces(StatusCodes.Status404NotFound)
     .WithTags(ApiTags.Reservations);
 
-app.MapPost("/api/reservations", async (CreateReservationDto dto, IReservationRepository repo) =>
+app.MapPost("/api/reservations", async (CreateReservationDto dto, IReservationRepository repo, ClaimsPrincipal user) =>
     {
+        if (user.IsInRole(Roles.Customer))
+        {
+            var customerIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (customerIdClaim == null || !int.TryParse(customerIdClaim, out var customerId) || dto.CustomerId != customerId)
+                return Results.Forbid();
+        }
+
         if (dto.ReservationDate < DateTime.Now)
             return Results.BadRequest("Reservation date must be in the future");
 
@@ -98,13 +108,25 @@ app.MapPost("/api/reservations", async (CreateReservationDto dto, IReservationRe
         var createdReservation = await repo.CreateAsync(reservation);
         return Results.Created($"/api/reservations/{createdReservation.ReservationId}", createdReservation.ToDto());
     })
+    .RequireAuthorization(policy => policy.RequireRole(Roles.Manager, Roles.Customer))
     .Accepts<CreateReservationDto>("application/json")
     .Produces<ReservationResponseDto>(StatusCodes.Status201Created)
     .Produces(StatusCodes.Status400BadRequest)
     .WithTags(ApiTags.Reservations);
 
-app.MapPut("/api/reservations/{id:int}", async (int id, UpdateReservationDto dto, IReservationRepository repo) =>
+app.MapPut("/api/reservations/{id:int}", async (int id, UpdateReservationDto dto, IReservationRepository repo, ClaimsPrincipal user) =>
     {
+        var existingReservation = await repo.GetByIdAsync(id);
+        if (existingReservation == null)
+            return Results.NotFound();
+
+        if (user.IsInRole(Roles.Customer) && !user.IsInRole(Roles.Manager))
+        {
+            var customerIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (customerIdClaim == null || !int.TryParse(customerIdClaim, out var customerId) || existingReservation.CustomerId != customerId)
+                return Results.Forbid();
+        }
+
         if (dto.ReservationDate < DateTime.Now)
             return Results.BadRequest("Reservation date must be in the future");
 
@@ -121,47 +143,70 @@ app.MapPut("/api/reservations/{id:int}", async (int id, UpdateReservationDto dto
         var updatedReservation = await repo.UpdateAsync(reservation);
         return updatedReservation is not null ? Results.Ok(updatedReservation.ToDto()) : Results.NotFound();
     })
+    .RequireAuthorization(policy => policy.RequireRole(Roles.Manager, Roles.Customer))
     .Accepts<UpdateReservationDto>("application/json")
     .Produces<ReservationResponseDto>()
     .Produces(StatusCodes.Status400BadRequest)
     .Produces(StatusCodes.Status404NotFound)
     .WithTags(ApiTags.Reservations);
 
-app.MapPatch("/api/reservations/{id:int}", async (int id, PatchReservationDto reservationPatch, IReservationRepository repo) =>
-    {
-        var existingReservation = await repo.GetByIdAsync(id);
-        if (existingReservation is null)
-            return Results.NotFound();
-
-        if (reservationPatch.CustomerId.HasValue)
-            existingReservation.CustomerId = reservationPatch.CustomerId.Value;
-        if (reservationPatch.RestaurantId.HasValue)
-            existingReservation.RestaurantId = reservationPatch.RestaurantId.Value;
-        if (reservationPatch.TableId.HasValue)
-            existingReservation.TableId = reservationPatch.TableId.Value;
-        if (reservationPatch.ReservationDate.HasValue)
+app.MapPatch("/api/reservations/{id:int}",
+        async (int id, PatchReservationDto reservationPatch, IReservationRepository repo, ClaimsPrincipal user) =>
         {
-            if (reservationPatch.ReservationDate.Value < DateTime.Now)
-                return Results.BadRequest("Reservation date must be in the future");
-            existingReservation.ReservationDate = reservationPatch.ReservationDate.Value;
-        }
-        if (reservationPatch.PartySize.HasValue)
-            existingReservation.PartySize = reservationPatch.PartySize.Value;
+            var existingReservation = await repo.GetByIdAsync(id);
+            if (existingReservation is null)
+                return Results.NotFound();
 
-        var updatedReservation = await repo.UpdateAsync(existingReservation);
-        return updatedReservation is not null ? Results.Ok(updatedReservation.ToDto()) : Results.NotFound();
-    })
+            if (user.IsInRole(Roles.Customer))
+            {
+                var customerIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (customerIdClaim == null || !int.TryParse(customerIdClaim, out var customerId) || existingReservation.CustomerId != customerId)
+                    return Results.Forbid();
+            }
+
+            if (reservationPatch.CustomerId.HasValue)
+                existingReservation.CustomerId = reservationPatch.CustomerId.Value;
+            if (reservationPatch.RestaurantId.HasValue)
+                existingReservation.RestaurantId = reservationPatch.RestaurantId.Value;
+            if (reservationPatch.TableId.HasValue)
+                existingReservation.TableId = reservationPatch.TableId.Value;
+            if (reservationPatch.ReservationDate.HasValue)
+            {
+                if (reservationPatch.ReservationDate.Value < DateTime.Now)
+                    return Results.BadRequest("Reservation date must be in the future");
+                existingReservation.ReservationDate = reservationPatch.ReservationDate.Value;
+            }
+
+            if (reservationPatch.PartySize.HasValue)
+                existingReservation.PartySize = reservationPatch.PartySize.Value;
+
+            var updatedReservation = await repo.UpdateAsync(existingReservation);
+            return updatedReservation is not null ? Results.Ok(updatedReservation.ToDto()) : Results.NotFound();
+        })
+    .RequireAuthorization(policy => policy.RequireRole(Roles.Manager, Roles.Customer))
     .Accepts<PatchReservationDto>("application/json")
     .Produces<ReservationResponseDto>()
     .Produces(StatusCodes.Status400BadRequest)
     .Produces(StatusCodes.Status404NotFound)
     .WithTags(ApiTags.Reservations);
 
-app.MapDelete("/api/reservations/{id:int}", async (int id, IReservationRepository repo) =>
+app.MapDelete("/api/reservations/{id:int}", async (int id, IReservationRepository repo, ClaimsPrincipal user) =>
     {
+        var existingReservation = await repo.GetByIdAsync(id);
+        if (existingReservation == null)
+            return Results.NotFound();
+
+        if (user.IsInRole(Roles.Customer) && !user.IsInRole(Roles.Manager))
+        {
+            var customerIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (customerIdClaim == null || !int.TryParse(customerIdClaim, out var customerId) || existingReservation.CustomerId != customerId)
+                return Results.Forbid();
+        }
+
         var deletedReservation = await repo.DeleteAsync(id);
         return deletedReservation ? Results.NoContent() : Results.NotFound();
     })
+    .RequireAuthorization(policy => policy.RequireRole(Roles.Manager, Roles.Customer))
     .Produces(StatusCodes.Status204NoContent)
     .Produces(StatusCodes.Status404NotFound)
     .WithTags(ApiTags.Reservations);
@@ -172,6 +217,7 @@ app.MapGet("/api/employees/managers", async (IEmployeeRepository repo) =>
         var managersDtos = managers.Select(manager => manager.ToDto()).ToList();
         return Results.Ok(managersDtos);
     })
+    .RequireAuthorization(policy => policy.RequireRole(Roles.Manager))
     .Produces<List<EmployeeResponseDto>>()
     .WithTags(ApiTags.Employees);
 
@@ -181,6 +227,7 @@ app.MapGet("/api/reservations/customer/{customerId:int}", async (int customerId,
         var reservationDtos = reservations.Select(reservation => reservation.ToDto()).ToList();
         return Results.Ok(reservationDtos);
     })
+    .RequireAuthorization(policy => policy.RequireRole(Roles.Employee))
     .Produces<List<ReservationResponseDto>>()
     .WithTags(ApiTags.Reservations);
 
@@ -193,6 +240,7 @@ app.MapGet("/api/reservations/{reservationId:int}/orders", async (int reservatio
         var ordersDtos = orders.Select(order => order.ToDto()).ToList();
         return Results.Ok(ordersDtos);
     })
+    .RequireAuthorization(policy => policy.RequireRole(Roles.Employee))
     .Produces<List<OrderResponseDto>>()
     .Produces(StatusCodes.Status404NotFound)
     .WithTags(ApiTags.Reservations);
@@ -206,6 +254,7 @@ app.MapGet("/api/reservations/{reservationId:int}/menu-items", async (int reserv
         var menuItemsDtos = menuItems.Select(menuItem => menuItem.ToDto()).ToList();
         return Results.Ok(menuItemsDtos);
     })
+    .RequireAuthorization(policy => policy.RequireRole(Roles.Employee))
     .Produces<List<MenuItemResponseDto>>()
     .Produces(StatusCodes.Status404NotFound)
     .WithTags(ApiTags.Reservations);
@@ -218,6 +267,7 @@ app.MapGet("/api/employees/{employeeId:int}/average-order-amount", async (int em
             ? Results.Ok(response)
             : Results.NotFound(response);
     })
+    .RequireAuthorization(policy => policy.RequireRole(Roles.Manager))
     .Produces<AverageOrderAmountResponseDto>()
     .Produces<AverageOrderAmountResponseDto>(StatusCodes.Status404NotFound)
     .WithTags(ApiTags.Employees);
