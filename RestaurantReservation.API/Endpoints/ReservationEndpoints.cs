@@ -14,14 +14,55 @@ public static class ReservationEndpoints
     {
         var group = app.MapGroup("/api/reservations").WithTags(ApiTags.Reservations);
 
-        group.MapGet("/", async (IReservationRepository repo) =>
+        group.MapGet("/", async (
+                IReservationRepository repo,
+                int? pageNumber,
+                int? pageSize,
+                IValidator<PaginationQueryDto> validator) =>
             {
-                var reservations = await repo.GetAllAsync();
-                var reservationsDtos = reservations.Select(reservation => reservation.ToDto()).ToList();
-                return Results.Ok(reservationsDtos);
+                var query = new PaginationQueryDto(pageNumber, pageSize);
+
+                if (query.PageNumber == null && query.PageSize == null)
+                {
+                    var reservations = await repo.GetAllAsync();
+                    return Results.Ok(reservations.Select(reservation => reservation.ToDto()).ToList());
+                }
+
+                var validationResult = await validator.ValidateAsync(query);
+                if (!validationResult.IsValid)
+                {
+                    var problemDetails = new HttpValidationProblemDetails(validationResult.ToDictionary())
+                    {
+                        Status = StatusCodes.Status400BadRequest,
+                        Title = "Validation failed",
+                        Detail = "One or more validation errors occurred.",
+                        Instance = "/api/reservations"
+                    };
+                    return Results.Problem(problemDetails);
+                }
+
+                var pageNum = query.PageNumber ?? 1;
+                var pageSz = query.PageSize ?? 10;
+
+                var pagedResult = await repo.GetPagedAsync(pageNum, pageSz);
+                var reservationsDtos = pagedResult.Items.Select(reservation => reservation.ToDto()).ToList();
+
+                var response = new PaginatedResponseDto<ReservationResponseDto>(
+                    reservationsDtos,
+                    pagedResult.PageNumber,
+                    pagedResult.PageSize,
+                    pagedResult.TotalCount,
+                    pagedResult.TotalPages
+                );
+
+                return Results.Ok(response);
             })
             .RequireAuthorization(policy => policy.RequireRole(Roles.Employee))
-            .Produces<List<ReservationResponseDto>>();
+            .Produces<List<ReservationResponseDto>>()
+            .Produces<PaginatedResponseDto<ReservationResponseDto>>()
+            .WithSummary("Get list of reservations")
+            .WithDescription(
+                "Retrieves all reservations if no pagination parameters are provided, or a paginated list if pageNumber and/or pageSize are specified. Maximum page size is 100.");
 
         group.MapGet("/{id:int}", async (int id, IReservationRepository repo) =>
             {
