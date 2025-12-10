@@ -92,6 +92,7 @@ app.UseAuthorization();
 
 app.MapReservationEndpoints();
 app.MapEmployeeEndpoints();
+app.MapCustomerEndpoints();
 app.MapAuthenticationEndpoints();
 
 app.Run();
