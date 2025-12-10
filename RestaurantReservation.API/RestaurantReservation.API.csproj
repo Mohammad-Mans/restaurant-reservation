@@ -8,6 +8,7 @@
 
     <ItemGroup>
         <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+        <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.22" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.15" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
@@ -15,6 +16,10 @@
 
     <ItemGroup>
       <ProjectReference Include="..\RestaurantReservation.Db\RestaurantReservation.Db.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Validators\" />
     </ItemGroup>
 
 </Project>

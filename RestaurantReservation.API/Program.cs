@@ -1,6 +1,9 @@
 using System.Security.Claims;
 using System.Text;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -79,6 +82,8 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly, includeInternalTypes: true);
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -111,17 +116,29 @@ app.MapGet("/api/reservations/{id:int}", async (int id, IReservationRepository r
     .Produces(StatusCodes.Status404NotFound)
     .WithTags(ApiTags.Reservations);
 
-app.MapPost("/api/reservations", async (CreateReservationDto dto, IReservationRepository repo, ClaimsPrincipal user) =>
+app.MapPost("/api/reservations", async (CreateReservationDto dto, IReservationRepository repo, ClaimsPrincipal user,
+        IValidator<CreateReservationDto> validator) =>
     {
+        var validationResult = await validator.ValidateAsync(dto);
+        if (!validationResult.IsValid)
+        {
+            var problemDetails = new HttpValidationProblemDetails(validationResult.ToDictionary())
+            {
+                Status = StatusCodes.Status400BadRequest,
+                Title = "Validation failed",
+                Detail = "One or more validation errors occurred.",
+                Instance = "/api/reservations"
+            };
+            return Results.Problem(problemDetails);
+        }
+
         if (user.IsInRole(Roles.Customer))
         {
             var customerIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (customerIdClaim == null || !int.TryParse(customerIdClaim, out var customerId) || dto.CustomerId != customerId)
+            if (customerIdClaim == null || !int.TryParse(customerIdClaim, out var customerId) ||
+                dto.CustomerId != customerId)
                 return Results.Forbid();
         }
-
-        if (dto.ReservationDate < DateTime.Now)
-            return Results.BadRequest("Reservation date must be in the future");
 
         var reservation = new Reservation
         {
@@ -141,8 +158,22 @@ app.MapPost("/api/reservations", async (CreateReservationDto dto, IReservationRe
     .Produces(StatusCodes.Status400BadRequest)
     .WithTags(ApiTags.Reservations);
 
-app.MapPut("/api/reservations/{id:int}", async (int id, UpdateReservationDto dto, IReservationRepository repo, ClaimsPrincipal user) =>
+app.MapPut("/api/reservations/{id:int}", async (int id, UpdateReservationDto dto, IReservationRepository repo,
+        ClaimsPrincipal user, IValidator<UpdateReservationDto> validator) =>
     {
+        var validationResult = await validator.ValidateAsync(dto);
+        if (!validationResult.IsValid)
+        {
+            var problemDetails = new HttpValidationProblemDetails(validationResult.ToDictionary())
+            {
+                Status = StatusCodes.Status400BadRequest,
+                Title = "Validation failed",
+                Detail = "One or more validation errors occurred.",
+                Instance = $"/api/reservations/{id}"
+            };
+            return Results.Problem(problemDetails);
+        }
+
         var existingReservation = await repo.GetByIdAsync(id);
         if (existingReservation == null)
             return Results.NotFound();
@@ -150,12 +181,10 @@ app.MapPut("/api/reservations/{id:int}", async (int id, UpdateReservationDto dto
         if (user.IsInRole(Roles.Customer) && !user.IsInRole(Roles.Manager))
         {
             var customerIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (customerIdClaim == null || !int.TryParse(customerIdClaim, out var customerId) || existingReservation.CustomerId != customerId)
+            if (customerIdClaim == null || !int.TryParse(customerIdClaim, out var customerId) ||
+                existingReservation.CustomerId != customerId)
                 return Results.Forbid();
         }
-
-        if (dto.ReservationDate < DateTime.Now)
-            return Results.BadRequest("Reservation date must be in the future");
 
         var reservation = new Reservation
         {
@@ -178,8 +207,22 @@ app.MapPut("/api/reservations/{id:int}", async (int id, UpdateReservationDto dto
     .WithTags(ApiTags.Reservations);
 
 app.MapPatch("/api/reservations/{id:int}",
-        async (int id, PatchReservationDto reservationPatch, IReservationRepository repo, ClaimsPrincipal user) =>
+        async (int id, PatchReservationDto reservationPatch, IReservationRepository repo, ClaimsPrincipal user,
+            IValidator<PatchReservationDto> validator) =>
         {
+            var validationResult = await validator.ValidateAsync(reservationPatch);
+            if (!validationResult.IsValid)
+            {
+                var problemDetails = new HttpValidationProblemDetails(validationResult.ToDictionary())
+                {
+                    Status = StatusCodes.Status400BadRequest,
+                    Title = "Validation failed",
+                    Detail = "One or more validation errors occurred.",
+                    Instance = $"/api/reservations/{id}"
+                };
+                return Results.Problem(problemDetails);
+            }
+
             var existingReservation = await repo.GetByIdAsync(id);
             if (existingReservation is null)
                 return Results.NotFound();
@@ -187,7 +230,8 @@ app.MapPatch("/api/reservations/{id:int}",
             if (user.IsInRole(Roles.Customer))
             {
                 var customerIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (customerIdClaim == null || !int.TryParse(customerIdClaim, out var customerId) || existingReservation.CustomerId != customerId)
+                if (customerIdClaim == null || !int.TryParse(customerIdClaim, out var customerId) ||
+                    existingReservation.CustomerId != customerId)
                     return Results.Forbid();
             }
 
@@ -198,11 +242,7 @@ app.MapPatch("/api/reservations/{id:int}",
             if (reservationPatch.TableId.HasValue)
                 existingReservation.TableId = reservationPatch.TableId.Value;
             if (reservationPatch.ReservationDate.HasValue)
-            {
-                if (reservationPatch.ReservationDate.Value < DateTime.Now)
-                    return Results.BadRequest("Reservation date must be in the future");
                 existingReservation.ReservationDate = reservationPatch.ReservationDate.Value;
-            }
 
             if (reservationPatch.PartySize.HasValue)
                 existingReservation.PartySize = reservationPatch.PartySize.Value;
@@ -226,7 +266,8 @@ app.MapDelete("/api/reservations/{id:int}", async (int id, IReservationRepositor
         if (user.IsInRole(Roles.Customer) && !user.IsInRole(Roles.Manager))
         {
             var customerIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (customerIdClaim == null || !int.TryParse(customerIdClaim, out var customerId) || existingReservation.CustomerId != customerId)
+            if (customerIdClaim == null || !int.TryParse(customerIdClaim, out var customerId) ||
+                existingReservation.CustomerId != customerId)
                 return Results.Forbid();
         }
 
@@ -300,8 +341,22 @@ app.MapGet("/api/employees/{employeeId:int}/average-order-amount", async (int em
     .WithTags(ApiTags.Employees);
 
 app.MapPost("/api/auth/customer/login",
-        async (LoginDto login, ICustomerRepository customerRepo, JwtTokenGenerator tokenGenerator) =>
+        async (LoginDto login, ICustomerRepository customerRepo, JwtTokenGenerator tokenGenerator,
+            IValidator<LoginDto> validator) =>
         {
+            var validationResult = await validator.ValidateAsync(login);
+            if (!validationResult.IsValid)
+            {
+                var problemDetails = new HttpValidationProblemDetails(validationResult.ToDictionary())
+                {
+                    Status = StatusCodes.Status400BadRequest,
+                    Title = "Validation failed",
+                    Detail = "One or more validation errors occurred.",
+                    Instance = "/api/auth/customer/login"
+                };
+                return Results.Problem(problemDetails);
+            }
+
             var customer = await customerRepo.GetByUsernameAsync(login.Username);
 
             if (customer == null || string.IsNullOrEmpty(customer.PasswordHash))
@@ -321,8 +376,22 @@ app.MapPost("/api/auth/customer/login",
     .WithTags(ApiTags.Authentication);
 
 app.MapPost("/api/auth/employee/login",
-        async (LoginDto login, IEmployeeRepository employeeRepo, JwtTokenGenerator tokenGenerator) =>
+        async (LoginDto login, IEmployeeRepository employeeRepo, JwtTokenGenerator tokenGenerator,
+            IValidator<LoginDto> validator) =>
         {
+            var validationResult = await validator.ValidateAsync(login);
+            if (!validationResult.IsValid)
+            {
+                var problemDetails = new HttpValidationProblemDetails(validationResult.ToDictionary())
+                {
+                    Status = StatusCodes.Status400BadRequest,
+                    Title = "Validation failed",
+                    Detail = "One or more validation errors occurred.",
+                    Instance = "/api/auth/employee/login"
+                };
+                return Results.Problem(problemDetails);
+            }
+
             var employee = await employeeRepo.GetByUsernameAsync(login.Username);
 
             if (employee == null)
@@ -331,7 +400,8 @@ app.MapPost("/api/auth/employee/login",
             if (!BCrypt.Net.BCrypt.Verify(login.Password, employee.PasswordHash))
                 return Results.Unauthorized();
 
-            var token = tokenGenerator.GenerateToken(login.Username, employee.EmployeeId, Roles.Employee, employee.Position);
+            var token = tokenGenerator.GenerateToken(login.Username, employee.EmployeeId, Roles.Employee,
+                employee.Position);
             var response = new LoginResponseDto(token, login.Username, employee.Position, employee.EmployeeId);
 
             return Results.Ok(response);
